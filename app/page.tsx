@@ -92,6 +92,7 @@ export default function Home() {
               className="text-[1.5em] animate-glow"
               style={{
                 WebkitBackgroundClip: "text",
+                fontFamily: "Inter",
                 textShadow: `0 0 10px ${colors[0]}, 0 0 20px ${colors[1]}, 0 0 30px ${colors[2]}`,
               }}
             >
@@ -103,6 +104,7 @@ export default function Home() {
               className="text-[1.5em] animate-glow"
               style={{
                 WebkitBackgroundClip: "text",
+                fontFamily: "Inter",
                 textShadow: `0 0 10px ${colors[1]}, 0 0 20px ${colors[2]}, 0 0 30px ${colors[0]}`,
               }}
             >
@@ -114,6 +116,7 @@ export default function Home() {
               className="text-[1.5em] animate-glow"
               style={{
                 WebkitBackgroundClip: "text",
+                fontFamily: "Inter",
                 textShadow: `0 0 10px ${colors[2]}, 0 0 20px ${colors[0]}, 0 0 30px ${colors[1]}`,
               }}
             >
@@ -177,13 +180,13 @@ export default function Home() {
           </div>
 
           <p className="text-amber-200/70 max-w-lg mx-auto text-lg">
-            we&apos;ll text you, but not that much!
+            Be the first to know where we&apos;ll be
           </p>
         </div>
       </section>
 
-      <MusicSection />
       <EventsSection />
+      <MusicSection />
       <BlogSection />
     </main>
   );

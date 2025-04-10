@@ -23,7 +23,7 @@ export default function EventsSection() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <section className="min-h-screen py-20 px-4 relative bg-purple-950/30">
+    <section className="py-20 px-4 relative bg-purple-950/30">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-4xl font-bold text-amber-300 mb-12">
           Upcoming Events
