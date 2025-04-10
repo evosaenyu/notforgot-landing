@@ -1,0 +1,44 @@
+.PhoneInput {
+  /* Container */
+  width: 100%;
+}
+
+.PhoneInputInput {
+  /* Input field */
+  background: rgba(88, 28, 135, 0.5);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  color: rgb(243, 243, 243);
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  width: 100%;
+  outline: none;
+}
+
+.PhoneInputInput::placeholder {
+  color: rgba(251, 191, 36, 0.5);
+}
+
+.PhoneInputInput:focus {
+  border-color: rgb(251, 191, 36);
+  box-shadow: 0 0 0 1px rgb(251, 191, 36);
+}
+
+.PhoneInputCountry {
+  /* Country select */
+  margin-right: 0.5rem;
+}
+
+.PhoneInputCountrySelect {
+  /* Country select dropdown */
+  color: rgba(71, 71, 71);
+}
+
+.PhoneInputCountrySelectArrow {
+  /* Country select arrow */
+  border-color: rgb(118, 118, 118);
+  opacity: 0.5;
+}
+
+.PhoneInputCountrySelect:focus + .PhoneInputCountrySelectArrow {
+  opacity: 1;
+} 
