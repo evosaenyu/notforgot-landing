@@ -187,7 +187,7 @@ export default function Home() {
           </div>
 
           <p className="text-amber-200/70 max-w-lg mx-auto text-lg">
-            Be the first to know where we&apos;ll be
+            Stay in the loop on our next moves
           </p>
 
           <a 
