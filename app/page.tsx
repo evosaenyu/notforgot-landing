@@ -10,7 +10,7 @@ import EventsSection from "./components/EventsSection";
 import MusicSection from "./components/MusicSection";
 import BlogSection from "./components/BlogSection";
 import { Button } from "@/components/ui/button";
-
+import emailjs from '@emailjs/browser';
 const generateRandomColors = () => {
   const colors = [
     "#FF6B6B",
@@ -40,18 +40,7 @@ export default function Home() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
-  useEffect(() => {
-    // Add debug logging for environment variables
-    console.log('EmailJS Configuration:', {
-      serviceId: process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
-      templateId: process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
-      publicKey: process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY,
-      // Add more debug info
-      env: process.env,
-      isClient: typeof window !== 'undefined',
-      buildId: process.env.NEXT_PUBLIC_BUILD_ID,
-    });
-    
+  useEffect(() => {    
     const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener("scroll", handleScroll);
     setColors(generateRandomColors());
@@ -60,24 +49,33 @@ export default function Home() {
 
   const handleSubmit = async () => {
     if (!phone || isSubmitting) return;
-
+  
     setIsSubmitting(true);
     setSubmitStatus('idle');
     
     try {
-      const response = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ phone }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to send email');
+      // Initialize EmailJS with the public key
+      const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+      if (!publicKey) {
+        throw new Error('EmailJS public key is missing');
       }
-
+      emailjs.init(publicKey);
+  
+      const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+      const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+      
+      if (!serviceId || !templateId) {
+        throw new Error('EmailJS configuration is missing');
+      }
+      
+      await emailjs.send(
+        serviceId,
+        templateId,
+        {
+          phone: phone,
+        }
+      );
+  
       setSubmitStatus('success');
       setPhone(undefined);
     } catch (error) {
