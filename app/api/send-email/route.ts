@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import emailjs from '@emailjs/browser';
+import emailjs from '@emailjs/nodejs';
 
 export async function POST(request: Request) {
   try {
@@ -16,12 +16,14 @@ export async function POST(request: Request) {
     const serviceId = process.env.EMAILJS_SERVICE_ID;
     const templateId = process.env.EMAILJS_TEMPLATE_ID;
     const publicKey = process.env.EMAILJS_PUBLIC_KEY;
+    const privateKey = process.env.EMAILJS_PRIVATE_KEY;
 
-    if (!serviceId || !templateId || !publicKey) {
+    if (!serviceId || !templateId || !publicKey || !privateKey) {
       console.error('Missing EmailJS configuration:', {
         serviceId: !!serviceId,
         templateId: !!templateId,
-        publicKey: !!publicKey
+        publicKey: !!publicKey,
+        privateKey: !!privateKey
       });
       return NextResponse.json(
         { error: 'Email configuration is missing' },
@@ -30,16 +32,19 @@ export async function POST(request: Request) {
     }
 
     // Initialize EmailJS with both public and private keys
-    emailjs.init(publicKey);
+    emailjs.init({
+      publicKey,
+      privateKey
+    });
 
     // Send the email
-    await emailjs.send(
+    const response = await emailjs.send(
       serviceId,
       templateId,
       { phone }
     );
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, response });
   } catch (error) {
     console.error('Failed to send email:', error);
     return NextResponse.json(
