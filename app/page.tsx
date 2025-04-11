@@ -1,6 +1,6 @@
 "use client";
 
-import { Phone } from "lucide-react";
+import { Phone, Instagram } from "lucide-react";
 import { useState, useEffect } from "react";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
@@ -11,6 +11,9 @@ import MusicSection from "./components/MusicSection";
 import BlogSection from "./components/BlogSection";
 import emailjs from '@emailjs/browser';
 import { Button } from "@/components/ui/button";
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const generateRandomColors = () => {
   const colors = [
@@ -53,16 +56,21 @@ export default function Home() {
 
     setIsSubmitting(true);
     setSubmitStatus('idle');
-
+    emailjs.init(process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || '');
     try {
+      const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+      const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+      
+      if (!serviceId || !templateId) {
+        throw new Error('EmailJS configuration is missing');
+      }
+      
       await emailjs.send(
-        'YOUR_SERVICE_ID', // Replace with your EmailJS service ID
-        'YOUR_TEMPLATE_ID', // Replace with your EmailJS template ID
+        serviceId,
+        templateId,
         {
-          phone_number: phone,
-          to_name: 'Admin',
-        },
-        'YOUR_PUBLIC_KEY' // Replace with your EmailJS public key
+          phone: phone,
+        }
       );
 
       setSubmitStatus('success');
@@ -142,13 +150,12 @@ export default function Home() {
                 <div className="flex gap-4 items-center">
                   <Phone className="w-6 h-6 text-gray-200 flex-shrink-0" />
                   <PhoneInput
-                    international
+                    international={false}
                     defaultCountry="US"
-                    maxLength={15}
-                    autoComplete="tel"
+                    limitMaxLength
                     value={phone}
                     onChange={setPhone}
-                    className="bg-purple-900/50 text-gray-200 placeholder:text-amber-200/50"
+                    className="!bg-transparent text-gray-200 placeholder:text-amber-200/50 [&>input]:bg-transparent [&>input]:border-none [&>input]:focus:ring-0 [&>input]:focus:outline-none"
                   />
                 </div>
                 <Button
@@ -182,12 +189,26 @@ export default function Home() {
           <p className="text-amber-200/70 max-w-lg mx-auto text-lg">
             Be the first to know where we&apos;ll be
           </p>
+
+          <a 
+            href="https://www.instagram.com/nfgxcollective/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-block mt-4 text-amber-200/70 hover:text-amber-200 transition-colors"
+          >
+            <Instagram className="w-6 h-6" />
+          </a>
         </div>
       </section>
 
       <EventsSection />
       <MusicSection />
-      <BlogSection />
+      {/* <BlogSection /> */}
+      
+      {/* Footer */}
+      <footer className="w-full py-6 text-center text-amber-200/50 text-sm">
+        <p>© {new Date().getFullYear()} N.F.G. Records LLC. All rights reserved.</p>
+      </footer>
     </main>
   );
 }
