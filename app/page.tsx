@@ -11,9 +11,6 @@ import MusicSection from "./components/MusicSection";
 import BlogSection from "./components/BlogSection";
 import emailjs from '@emailjs/browser';
 import { Button } from "@/components/ui/button";
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 const generateRandomColors = () => {
   const colors = [
@@ -89,7 +86,7 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="min-h-screen flex items-center justify-center relative p-4">
-        <div className="max-w-4xl w-full space-y-8 text-center relative">
+        <div className="max-w-4xl w-[70w] space-y-8 text-center relative">
           <div
             className="text-8xl font-bold flex items-center justify-center gap-1"
             style={{
@@ -97,10 +94,11 @@ export default function Home() {
             }}
           >
             <span
-              className="text-[1.5em] animate-glow"
+              className="text-[1.2em] animate-glow"
               style={{
                 WebkitBackgroundClip: "text",
-                fontFamily: "Inter",
+                fontFamily: "inherit",
+                fontWeight: "bold",
                 textShadow: `0 0 10px ${colors[0]}, 0 0 20px ${colors[1]}, 0 0 30px ${colors[2]}`,
               }}
             >
@@ -109,10 +107,11 @@ export default function Home() {
             <span className="text-[0.2em]">o</span>
             <span className="text-[0.2em]">t</span>
             <span
-              className="text-[1.5em] animate-glow"
+              className="text-[1.2em] animate-glow"
               style={{
                 WebkitBackgroundClip: "text",
-                fontFamily: "Inter",
+                fontFamily: "inherit",
+                fontWeight: "bold",
                 textShadow: `0 0 10px ${colors[1]}, 0 0 20px ${colors[2]}, 0 0 30px ${colors[0]}`,
               }}
             >
@@ -121,10 +120,11 @@ export default function Home() {
             <span className="text-[0.2em]">o</span>
             <span className="text-[0.2em]">r</span>
             <span
-              className="text-[1.5em] animate-glow"
+              className="text-[1.2em] animate-glow"
               style={{
                 WebkitBackgroundClip: "text",
-                fontFamily: "Inter",
+                fontFamily: "inherit",
+                fontWeight: "bold",
                 textShadow: `0 0 10px ${colors[2]}, 0 0 20px ${colors[0]}, 0 0 30px ${colors[1]}`,
               }}
             >
