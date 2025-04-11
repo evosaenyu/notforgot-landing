@@ -9,7 +9,6 @@ import FloatingCircles from "./components/FloatingCircles";
 import EventsSection from "./components/EventsSection";
 import MusicSection from "./components/MusicSection";
 import BlogSection from "./components/BlogSection";
-import emailjs from '@emailjs/browser';
 import { Button } from "@/components/ui/button";
 
 const generateRandomColors = () => {
