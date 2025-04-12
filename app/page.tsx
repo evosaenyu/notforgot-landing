@@ -10,6 +10,14 @@ import EventsSection from "./components/EventsSection";
 import MusicSection from "./components/MusicSection";
 import BlogSection from "./components/BlogSection";
 import { Button } from "@/components/ui/button";
+import { Nabla, Monda } from "next/font/google";
+import { motion, AnimatePresence } from "framer-motion";
+
+const nabla = Nabla({ subsets: ['latin'] });
+const monda = Monda({
+  subsets: ['latin'],
+  weight: "700"
+});
 const generateRandomColors = () => {
   const colors = [
     "#FF6B6B",
@@ -84,63 +92,55 @@ export default function Home() {
       {/* Hero Section */}
       <section className="min-h-screen flex items-center justify-center relative p-4">
         <div className="max-w-4xl w-[70w] space-y-8 text-center relative">
-          <div
-            className="text-8xl font-bold flex items-center justify-center gap-1"
-            style={{
-              transform: `translateY(${scrollY * 0.1}px)`,
-            }}
-          >
-            <span
-              className="text-[1.2em] animate-glow"
-              style={{
-                WebkitBackgroundClip: "text",
-                fontFamily: "inherit",
-                fontWeight: "bold",
-                textShadow: `0 0 10px ${colors[0]}, 0 0 20px ${colors[1]}, 0 0 30px ${colors[2]}`,
-              }}
-            >
-              N
-            </span>
-            <span className="text-[0.2em]">o</span>
-            <span className="text-[0.2em]">t</span>
-            <span
-              className="text-[1.2em] animate-glow"
-              style={{
-                WebkitBackgroundClip: "text",
-                fontFamily: "inherit",
-                fontWeight: "bold",
-                textShadow: `0 0 10px ${colors[1]}, 0 0 20px ${colors[2]}, 0 0 30px ${colors[0]}`,
-              }}
-            >
-              F
-            </span>
-            <span className="text-[0.2em]">o</span>
-            <span className="text-[0.2em]">r</span>
-            <span
-              className="text-[1.2em] animate-glow"
-              style={{
-                WebkitBackgroundClip: "text",
-                fontFamily: "inherit",
-                fontWeight: "bold",
-                textShadow: `0 0 10px ${colors[2]}, 0 0 20px ${colors[0]}, 0 0 30px ${colors[1]}`,
-              }}
-            >
-              G
-            </span>
-            <span className="text-[0.2em]">o</span>
-            <span className="text-[0.2em]">t</span>
+          <div className="relative h-[200px] flex items-center justify-center">
+            <AnimatePresence>
+              <motion.div
+                initial={{ opacity: 0, x: 0, y: 0, scale: 0.6 }}
+                animate={{ opacity: 1, x: -85, y: -60, scale: 1 }}
+                transition={{ duration: 2, ease: "circInOut" }}
+                className="absolute"
+              >
+                <span className={`text-[4.5em] animate-glow ${nabla.className}`} style={{ filter: 'hue-rotate(240deg) saturate(1)', textShadow: `0 0 5px ${colors[0]}, 0 0 15px ${colors[1]}, 0 0 30px ${colors[2]}` }}>NOT</span>
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, x: 0, y: 0, scale: 0.6 }}
+                animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+                transition={{ duration: 2, ease: "circInOut" }}
+                className="absolute"
+              >
+                <span className={`text-[4.5em] animate-glow ${nabla.className}`} style={{ filter: 'hue-rotate(300deg) saturate(1)', textShadow: `0 0 5px ${colors[1]}, 0 0 15px ${colors[2]}, 0 0 30px ${colors[0]}` }}>FOR</span>
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, x: 0, y: 0, scale: 0.6 }}
+                animate={{ opacity: 1, x: 85, y: 60, scale: 1 }}
+                transition={{ duration: 2, ease: "circInOut" }}
+                className="absolute"
+              >
+                <span className={`text-[4.5em] animate-glow ${nabla.className}`} style={{ filter: 'hue-rotate(320deg) saturate(1)', textShadow: `0 0 5px ${colors[2]}, 0 0 15px ${colors[0]}, 0 0 30px ${colors[1]}` }}>GOT</span>
+              </motion.div>
+            </AnimatePresence>
           </div>
 
-          <h2
-            className="text-2xl text-amber-300/80 font-light tracking-wider"
+          <motion.h2
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1, duration: 2, ease: "easeInOut" }}
+            className={`text-2xl text-amber-300/80 font-light tracking-wider ${monda.className}`}
             style={{
-              transform: `translateY(${scrollY * 0.05}px)`,
+              textShadow: `0 0 5px ${colors[0]}, 0 0 15px ${colors[1]}, 0 0 30px ${colors[2]}`
             }}
           >
             a collective
-          </h2>
+          </motion.h2>
 
-          <div className="relative max-w-md mx-auto transform hover:scale-105 transition-transform duration-300">
+          <motion.div
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 2, duration: 2, ease: "easeInOut" }}
+            className="relative max-w-md mx-auto"
+          >
             <div className="absolute inset-0 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 rounded-lg blur opacity-50 animate-pulse" />
             <div className="relative bg-purple-950/80 backdrop-blur-sm rounded-lg p-6 border border-amber-300/30">
               <div className="flex flex-col gap-4">
@@ -181,20 +181,28 @@ export default function Home() {
                 </Button>
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          <p className="text-amber-200/70 max-w-lg mx-auto text-lg">
+          <motion.p
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 2, duration: 2, ease: "easeInOut" }}
+            className="text-amber-200/70 max-w-lg mx-auto text-lg"
+          >
             Stay in the loop on our next moves
-          </p>
+          </motion.p>
 
-          <a 
+          <motion.a 
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 2, duration: 2, ease: "easeInOut" }}
             href="https://www.instagram.com/nfgxcollective/" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="inline-block mt-4 text-amber-200/70 hover:text-amber-200 transition-colors"
+            className="inline-block mt-4 text-amber-200/70 hover:text-amber-200"
           >
             <Instagram className="w-6 h-6" />
-          </a>
+          </motion.a>
         </div>
       </section>
 
