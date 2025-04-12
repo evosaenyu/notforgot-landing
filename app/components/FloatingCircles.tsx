@@ -51,10 +51,10 @@ export default function FloatingCircles() {
     const positionInterval = setInterval(() => {
       setPositions(
         positions.map(() => ({
-          width: Math.random() * 100 + 100,
-          height: Math.random() * 100 + 100,
-          left: Math.random() * 30 + 35,
-          top: Math.random() * 30 + 35,
+          width: Math.random() * 100 + 200,
+          height: Math.random() * 100 + 200,
+          left: Math.random() * 100,
+          top: Math.random() * 100,
         }))
       );
     }, 5000);
@@ -85,14 +85,14 @@ export default function FloatingCircles() {
             rotate: scrollY * (i % 2 ? 1 : -1) * (i % 3 ? 0.5 : 1),
           }}
           transition={{
-            left: { duration: 2, ease: "easeInOut" },
-            top: { duration: 2, ease: "easeInOut" },
-            width: { duration: 2, ease: "easeInOut" },
-            height: { duration: 2, ease: "easeInOut" },
-            scale: { duration: 1.8, ease: "easeInOut" },
-            opacity: { duration: 1.8, ease: "easeInOut" },
-            backgroundColor: { duration: 1.8, ease: "easeInOut" },
-            rotate: { duration: 1.1, ease: "linear" },
+            left: { duration: 4, ease: "easeInOut" },
+            top: { duration: 4, ease: "easeInOut" },
+            width: { duration: 4, ease: "easeInOut" },
+            height: { duration: 4, ease: "easeInOut" },
+            scale: { duration: 2.5, ease: "easeInOut" },
+            opacity: { duration: 2.5, ease: "easeInOut" },
+            backgroundColor: { duration: 2.5, ease: "easeInOut" },
+            rotate: { duration: 2, ease: "linear" },
           }}
         />
       ))}
