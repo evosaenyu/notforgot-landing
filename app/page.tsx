@@ -1,6 +1,6 @@
 "use client";
 
-import { Phone, Instagram } from "lucide-react";
+import { Phone, Instagram, ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
@@ -13,7 +13,18 @@ import { Button } from "@/components/ui/button";
 import { Nabla, Monda } from "next/font/google";
 import { motion, AnimatePresence } from "framer-motion";
 
-const nabla = Nabla({ subsets: ['latin'] });
+const nabla = Nabla({ 
+  subsets: ['latin'],
+  display: 'block',
+  variable: '--font-nabla',
+  fallback: ['system-ui', 'arial'],
+});
+
+// Add variable font settings in CSS
+const nablaStyle = {
+  fontVariationSettings: '"EDPT" 100, "EHLT" 12'
+};
+
 const monda = Monda({
   subsets: ['latin'],
   weight: "700"
@@ -100,7 +111,9 @@ export default function Home() {
                 transition={{ duration: 2, ease: "circInOut" }}
                 className="absolute"
               >
-                <span className={`text-[4.5em] animate-glow ${nabla.className}`} style={{ filter: 'hue-rotate(240deg) saturate(1)', textShadow: `0 0 5px ${colors[0]}, 0 0 15px ${colors[1]}, 0 0 30px ${colors[2]}` }}>NOT</span>
+                <span className={`text-[4.5em] animate-glow nabla-text nabla-purple ${nabla.className}`}>
+                  NOT
+                </span>
               </motion.div>
               
               <motion.div
@@ -109,7 +122,9 @@ export default function Home() {
                 transition={{ duration: 2, ease: "circInOut" }}
                 className="absolute"
               >
-                <span className={`text-[4.5em] animate-glow ${nabla.className}`} style={{ filter: 'hue-rotate(300deg) saturate(1)', textShadow: `0 0 5px ${colors[1]}, 0 0 15px ${colors[2]}, 0 0 30px ${colors[0]}` }}>FOR</span>
+                <span className={`text-[4.5em] animate-glow nabla-text nabla-warm ${nabla.className}`}>
+                  FOR
+                </span>
               </motion.div>
               
               <motion.div
@@ -118,7 +133,9 @@ export default function Home() {
                 transition={{ duration: 2, ease: "circInOut" }}
                 className="absolute"
               >
-                <span className={`text-[4.5em] animate-glow ${nabla.className}`} style={{ filter: 'hue-rotate(320deg) saturate(1)', textShadow: `0 0 5px ${colors[2]}, 0 0 15px ${colors[0]}, 0 0 30px ${colors[1]}` }}>GOT</span>
+                <span className={`text-[4.5em] animate-glow nabla-text nabla-cool ${nabla.className}`}>
+                  GOT
+                </span>
               </motion.div>
             </AnimatePresence>
           </div>
@@ -141,8 +158,8 @@ export default function Home() {
             transition={{ delay: 2, duration: 2, ease: "easeInOut" }}
             className="relative max-w-md mx-auto"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 rounded-lg blur opacity-50 animate-pulse" />
-            <div className="relative bg-purple-950/80 backdrop-blur-sm rounded-lg p-6 border border-amber-300/30">
+            <div className="absolute inset-0 bg-gradient-to-r from-[#ffa5f9] via-[#FFD5FC] to-[#ffa5f9] rounded-lg blur opacity-50 animate-pulse" />
+            <div className="relative bg-purple-950/80 backdrop-blur-sm rounded-lg p-6">
               <div className="flex flex-col gap-4">
                 <div className="flex gap-4 items-center">
                   <Phone className="w-6 h-6 text-gray-200 flex-shrink-0" />
@@ -163,7 +180,7 @@ export default function Home() {
                       ? 'bg-green-500 hover:bg-green-600' 
                       : submitStatus === 'error'
                       ? 'bg-red-500 hover:bg-red-600'
-                      : 'bg-amber-400 hover:bg-amber-500'
+                      : 'bg-[#ffa5f9] hover:bg-[#FFD5FC]'
                   } text-black font-medium`}
                 >
                   {isSubmitting ? (
@@ -199,11 +216,26 @@ export default function Home() {
             href="https://www.instagram.com/nfgxcollective/" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="inline-block mt-4 text-amber-200/70 hover:text-amber-200"
+            className="inline-block text-amber-200/70 hover:text-amber-200"
           >
             <Instagram className="w-6 h-6" />
           </motion.a>
+
         </div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: scrollY > 0 ? 0 : 1 }}
+          transition={{ duration: 0.3 }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer"
+          onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+        >
+          <motion.div
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <ChevronDown className="w-6 h-6 text-amber-200/70" />
+          </motion.div>
+        </motion.div>
       </section>
 
       <EventsSection />

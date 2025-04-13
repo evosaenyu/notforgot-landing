@@ -2,6 +2,52 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Base Nabla styles */
+.nabla-text {
+  font-variation-settings: "EDPT" 100, "EHLT" 40;
+}
+
+/* Desktop styles */
+@media (min-width: 769px) {
+  .nabla-purple {
+    filter: hue-rotate(240deg) saturate(1);
+    text-shadow: 0 0 5px #ff6b6b99, 0 0 10px #4ecdc499, 0 0 20px #45b7d199;
+  }
+  
+  .nabla-warm {
+    filter: hue-rotate(300deg) saturate(1);
+    text-shadow: 0 0 5px #4ecdc499, 0 0 10px #45b7d199, 0 0 20px #ff6b6b99;
+  }
+  
+  .nabla-cool {
+    filter: hue-rotate(320deg) saturate(1);
+    text-shadow: 0 0 5px #45b7d199, 0 0 10px #ff6b6b99, 0 0 20px #4ecdc499;
+  }
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .nabla-text {
+    /* Remove any existing effects first */
+    background: none;
+    -webkit-background-clip: initial;
+    background-clip: initial;
+    color: #ffa5f9;
+    /* Add strong 3D effect with multiple shadows */
+    text-shadow: 
+      -1px -1px 0 #000,
+      1px -1px 0 #000,
+      -1px 1px 0 #000,
+      1px 1px 0 #000,
+      2px 2px 0 #4ecdc4,
+      4px 4px 0 #45b7d1,
+      6px 6px 0 rgba(0,0,0,0.2);
+    /* Ensure crisp rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
