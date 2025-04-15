@@ -9,6 +9,7 @@ import FloatingCircles from "./components/FloatingCircles";
 import EventsSection from "./components/EventsSection";
 import MusicSection from "./components/MusicSection";
 import BlogSection from "./components/BlogSection";
+import BackgroundVideo from "./components/BackgroundVideo";
 import { Button } from "@/components/ui/button";
 import { Nabla, Monda } from "next/font/google";
 import { motion, AnimatePresence } from "framer-motion";
@@ -27,7 +28,7 @@ const nablaStyle = {
 
 const monda = Monda({
   subsets: ['latin'],
-  weight: "700"
+  weight: "400"
 });
 const generateRandomColors = () => {
   const colors = [
@@ -98,6 +99,7 @@ export default function Home() {
 
   return (
     <main className="relative bg-gradient-to-br from-purple-950 via-purple-900 to-purple-800">
+      <BackgroundVideo />
       <FloatingCircles />
 
       {/* Hero Section */}
@@ -122,7 +124,7 @@ export default function Home() {
                 transition={{ duration: 2, ease: "circInOut" }}
                 className="absolute"
               >
-                <span className={`text-[4.5em] animate-glow nabla-text nabla-warm ${nabla.className}`}>
+                <span className={`text-[4.5em] animate-glow nabla-text nabla-purple ${nabla.className}`}>
                   FOR
                 </span>
               </motion.div>
@@ -133,7 +135,7 @@ export default function Home() {
                 transition={{ duration: 2, ease: "circInOut" }}
                 className="absolute"
               >
-                <span className={`text-[4.5em] animate-glow nabla-text nabla-cool ${nabla.className}`}>
+                <span className={`text-[4.5em] animate-glow nabla-text nabla-purple ${nabla.className}`}>
                   GOT
                 </span>
               </motion.div>
@@ -144,10 +146,8 @@ export default function Home() {
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1, duration: 2, ease: "easeInOut" }}
-            className={`text-2xl text-amber-300/80 font-light tracking-wider ${monda.className}`}
-            style={{
-              textShadow: `0 0 5px ${colors[0]}, 0 0 15px ${colors[1]}, 0 0 30px ${colors[2]}`
-            }}
+            className={`text-2xl font-light tracking-wider nabla-text ${monda.className}`}
+            style={{ color: "rgb(255, 188, 255)"}} // Fixed typo in 'rgb'
           >
             a collective
           </motion.h2>
