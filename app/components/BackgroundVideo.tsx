@@ -2,8 +2,8 @@ import React, { useEffect } from 'react';
 
 const BackgroundVideo: React.FC = () => {
   const video = {
-    src: '/assets/nfg.mp4', // Use relative path from the public directory
-    type: 'video/mp4',
+    src: '/assets/nfg.webm', // Use relative path from the public directory
+    type: 'video/webm',
   };
 
   useEffect(() => {
@@ -52,6 +52,12 @@ const BackgroundVideo: React.FC = () => {
         autoPlay
         loop
         muted
+        playsInline
+        webkit-playsinline="true"
+        x5-playsinline="true"
+        x5-video-player-type="h5"
+        x5-video-player-fullscreen="false"
+        x5-video-orientation="portraint"
         style={{
           minWidth: '100vw',
           minHeight: '100vh',
