@@ -108,6 +108,7 @@ export default function Home() {
           <div className="relative h-[200px] flex items-center justify-center">
             <AnimatePresence>
               <motion.div
+                key="NOT"
                 initial={{ opacity: 0, x: 0, y: 0, scale: 0.6 }}
                 animate={{ opacity: 1, x: -85, y: -60, scale: 1 }}
                 transition={{ duration: 2, ease: "circInOut" }}
@@ -119,6 +120,7 @@ export default function Home() {
               </motion.div>
               
               <motion.div
+                key="FOR"
                 initial={{ opacity: 0, x: 0, y: 0, scale: 0.6 }}
                 animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
                 transition={{ duration: 2, ease: "circInOut" }}
@@ -130,6 +132,7 @@ export default function Home() {
               </motion.div>
               
               <motion.div
+                key="GOT"
                 initial={{ opacity: 0, x: 0, y: 0, scale: 0.6 }}
                 animate={{ opacity: 1, x: 85, y: 60, scale: 1 }}
                 transition={{ duration: 2, ease: "circInOut" }}
