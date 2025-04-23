@@ -11,7 +11,7 @@ import FullScreenModal from "./FullScreenModal";
 const events = [
   {
     name: "Fras Fest",
-    date: "May 17, 2025 - Saturday (4pm to Midnight)",
+    date: "May 17, 2025 - Saturday (4pm to 11pm)",
     locationName: "The Ruins at Sassafras Farm",
     address: "194 Darrow Road New Lebanon, NY 12125",
     image: frasfest,
