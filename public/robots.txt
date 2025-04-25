@@ -1,0 +1,49 @@
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://not-forgot.com/sitemap.xml
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /private/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /node_modules/
+Disallow: /.git/
+Disallow: /.env
+Disallow: /package.json
+Disallow: /package-lock.json
+
+# Prevent duplicate content
+Disallow: /*?*
+Disallow: /*/amp/
+Disallow: /*/print/
+Disallow: /*?print=1
+
+# Prevent indexing of search results and filters
+Disallow: /search/
+Disallow: /*?search=*
+Disallow: /*?filter=*
+Disallow: /*?sort=*
+
+# Allow specific file types
+Allow: /*.css$
+Allow: /*.js$
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.gif$
+Allow: /*.svg$
+Allow: /*.ico$
+
+# Crawl-delay for all bots (1 request per second)
+Crawl-delay: 1
+
+# Host directive
+Host: not-forgot.com
+
+# Clean-param directive for tracking parameters
+Clean-param: utm_source&utm_medium&utm_campaign&utm_term&utm_content /blog/
+Clean-param: ref&source&fbclid /blog/ 
