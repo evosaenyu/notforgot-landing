@@ -150,7 +150,7 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1, duration: 2, ease: "easeInOut" }}
             className={`text-2xl font-light tracking-wider nabla-text ${monda.className}`}
-            style={{ color: "rgb(255, 188, 255)"}} // Fixed typo in 'rgb'
+            style={{ color: "rgb(255, 188, 255)"}}
           >
             a collective
           </motion.h2>
