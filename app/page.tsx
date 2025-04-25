@@ -243,7 +243,7 @@ export default function Home() {
 
       <EventsSection />
       <MusicSection />
-      {/* <BlogSection /> */}
+      <BlogSection />
       
       {/* Footer */}
       <footer className="w-full py-6 text-center text-amber-200/50 text-sm">
