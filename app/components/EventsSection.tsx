@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Image, { StaticImageData } from "next/image";
 import frasfest from "@/public/assets/frasfest.jpeg";
+import actionburg from "@/public/assets/actionburg.png";
 import { useState } from "react";
 import FullScreenModal from "./FullScreenModal";
 
@@ -17,18 +18,17 @@ interface EventItem {
   ticketLink: string;
 }
 
-const events: EventItem[] = [
-  {
-    name: "I'm Thinking of Leaving - Album Drop Party",
-    date: "TBA",
-    locationName: "Venue TBA",
-    address: "123 Placeholder Street, Albany, NY 12203",
-    image: "/assets/placeholder-album.jpg",
-    ticketLink: "#",
-  },
-];
+const events: EventItem[] = [];
 
 const pastEvents: EventItem[] = [
+  {
+    name: "Burg & House (Album Drop Party)",
+    date: "December 12, 2025 - Friday (7pm to 11pm)",
+    locationName: "Action Burger",
+    address: "292 Graham Ave, Brooklyn, NY 11211",
+    image: actionburg,
+    ticketLink: "https://partiful.com/e/9meWqGI0R5l0GWYvZLxA",
+  },
   {
     name: "Fras Fest",
     date: "May 17, 2025 - Saturday (4pm to 11pm)",
@@ -107,12 +107,16 @@ export default function EventsSection() {
   return (
     <section className="py-20 px-4 relative">
       <div className="max-w-6xl mx-auto">
-        <h2 className="text-4xl font-bold text-amber-300 mb-12">
-          Upcoming Events
-        </h2>
-        <div className="space-y-6">
-          {events.map((event) => renderEventCard(event))}
-        </div>
+        {events.length > 0 && (
+          <>
+            <h2 className="text-4xl font-bold text-amber-300 mb-12">
+              Upcoming Events
+            </h2>
+            <div className="space-y-6">
+              {events.map((event) => renderEventCard(event))}
+            </div>
+          </>
+        )}
 
         {pastEvents.length > 0 && (
           <>
