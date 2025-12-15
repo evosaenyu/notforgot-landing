@@ -3,6 +3,22 @@
 import { Card } from "@/components/ui/card";
 
 const spotifyEmbeds = [
+  { // I'm Thinking of Leaving
+    url: "https://open.spotify.com/embed/album/0jViYfvwJPKBz7e8kS3yzC?utm_source=generator&theme=0",
+    height: "352"
+  },
+  {
+    url: "https://open.spotify.com/embed/track/4lRHWnYfCkZ7okJvuBjvH5?utm_source=generator&theme=0",
+    height: "352"
+  },
+  {
+    url: "https://open.spotify.com/embed/track/6cbej4JjbzCjemxlJ8iJa3?utm_source=generator&theme=0",
+    height: "352"
+  },
+  {
+    url: "https://open.spotify.com/embed/track/635EU2S7QMnLQrHfjEGJFG?utm_source=generator&theme=0",
+    height: "352"
+  },
   {
     url: "https://open.spotify.com/embed/album/2Y635ccyKvwRXbob0ih8M5?utm_source=generator",
     height: "352"
