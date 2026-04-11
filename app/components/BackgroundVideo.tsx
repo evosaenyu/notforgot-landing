@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 const BackgroundVideo: React.FC = () => {
   const video = {
-    src: '/assets/nfg.webm', // Use relative path from the public directory
+    src: '/assets/MONTRUFF1.webm', // Use relative path from the public directory
     type: 'video/webm',
   };
 
