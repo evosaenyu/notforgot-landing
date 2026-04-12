@@ -1,6 +1,6 @@
 # NotForGot Landing Page
 
-A modern, interactive landing page built with Next.js, featuring a beautiful UI with floating animations, phone number collection, and EmailJS integration.
+A modern, interactive landing page built with Next.js, featuring a beautiful UI with floating animations and event content.
 
 ## ✨ Features
 
@@ -9,12 +9,6 @@ A modern, interactive landing page built with Next.js, featuring a beautiful UI 
   - Gradient backgrounds
   - Responsive layout
   - Smooth transitions and effects
-
-- 📱 **Interactive Components**
-  - Phone number input with international support
-  - Form validation and submission
-  - EmailJS integration for notifications
-  - Dynamic UI states (loading, success, error)
 
 - 🚀 **Modern Tech Stack**
   - Next.js 13 with App Router
@@ -31,8 +25,6 @@ A modern, interactive landing page built with Next.js, featuring a beautiful UI 
 - **UI Components:** [Radix UI](https://www.radix-ui.com/)
 - **Animations:** [Framer Motion](https://www.framer.com/motion/)
 - **Form Handling:** [React Hook Form](https://react-hook-form.com/)
-- **Phone Input:** [react-phone-number-input](https://github.com/catamphetamine/react-phone-number-input)
-- **Email Integration:** [EmailJS](https://www.emailjs.com/)
 
 ## 🚀 Getting Started
 
@@ -56,17 +48,7 @@ A modern, interactive landing page built with Next.js, featuring a beautiful UI 
    yarn install
    ```
 
-3. Create a `.env` file based on `.env.template`:
-   ```bash
-   cp .env.template .env
-   ```
-
-4. Fill in your EmailJS credentials in the `.env` file:
-   ```
-   EMAILJS_SERVICE_ID=your_service_id
-   EMAILJS_TEMPLATE_ID=your_template_id
-   EMAILJS_PUBLIC_KEY=your_public_key
-   ```
+3. Optionally copy `.env.template` to `.env` when you add API keys (e.g. ticketing).
 
 ### Development
 

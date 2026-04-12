@@ -3,6 +3,10 @@
 import { Card } from "@/components/ui/card";
 
 const spotifyEmbeds = [
+  { // Fever
+    url: "https://open.spotify.com/embed/track/2DywdW4u6tIi6IorQQWNV0?utm_source=generator",
+    height: "352"
+  },
   { // I'm Thinking of Leaving
     url: "https://open.spotify.com/embed/album/0jViYfvwJPKBz7e8kS3yzC?utm_source=generator&theme=0",
     height: "352"
