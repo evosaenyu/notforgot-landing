@@ -57,7 +57,7 @@ export default function EventsSection() {
     >
       <div className="flex flex-col md:flex-row gap-6 items-center">
         <div
-          className="w-full md:w-48 rounded-lg overflow-hidden cursor-pointer"
+          className={`w-full md:w-48 rounded-lg overflow-hidden ${isPast ? "" : "cursor-pointer"}`}
           onClick={() => !isPast && setIsModalOpen(true)}
         >
           {typeof event.image === "string" ? (
