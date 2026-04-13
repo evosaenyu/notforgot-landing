@@ -20,6 +20,7 @@ type Tier = {
 type EventInfo = {
   name: string;
   date: string;
+  description: string;
 };
 
 type Cart = Record<string, number>;
@@ -142,7 +143,8 @@ export default function TicketBuyingSection() {
           {event ? (
             <>
               <span className="text-[#ffa5f9] font-semibold text-lg">{event.name}</span>
-              <span className="text-amber-200/60 text-sm ml-1">{event.date}</span>
+              <p className="text-amber-200/50 text-sm mt-0.5">{event.description}</p>
+              <span className="text-amber-200/60 text-base ml-1">{event.date}</span>
             </>
           ) : (
             !error && <span className="text-amber-200/30 text-sm animate-pulse">Loading…</span>
@@ -200,7 +202,7 @@ export default function TicketBuyingSection() {
                           Sold out
                         </span>
                       )}
-                      {!soldOut && tier.remaining <= 15 && (
+                      {!soldOut && tier.remaining <= 20 && (
                         <span className="text-[10px] uppercase tracking-wide bg-amber-400/10 text-amber-300 border border-amber-400/20 rounded px-1.5 py-0.5">
                           {tier.remaining} left
                         </span>
