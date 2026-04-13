@@ -83,7 +83,7 @@ export default function Home() {
                 className="absolute"
               >
                 <span className={`text-[4.5em] animate-glow nabla-text nabla-purple ${nabla.className}`}>
-                  NOT
+                  <span className="brightness-150">N</span><span className="brightness-75">OT</span>
                 </span>
               </motion.div>
               
@@ -95,7 +95,7 @@ export default function Home() {
                 className="absolute"
               >
                 <span className={`text-[4.5em] animate-glow nabla-text nabla-purple ${nabla.className}`}>
-                  FOR
+                  <span className="brightness-150">F</span><span className="brightness-75">OR</span>
                 </span>
               </motion.div>
               
@@ -107,7 +107,7 @@ export default function Home() {
                 className="absolute"
               >
                 <span className={`text-[4.5em] animate-glow nabla-text nabla-purple ${nabla.className}`}>
-                  GOT
+                  <span className="brightness-150">G</span><span className="brightness-75">OT</span>
                 </span>
               </motion.div>
             </AnimatePresence>

@@ -51,16 +51,19 @@ export async function GET() {
   // Sort by price ascending (Early Bird → General → VIP)
   mergedTiers.sort((a, b) => a.price - b.price);
 
-  return NextResponse.json({
-    event: {
-      name: event.name,
-      date: new Date(event.date).toLocaleDateString("en-US", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      }),
+  return NextResponse.json(
+    {
+      event: {
+        name: event.name,
+        date: new Date(event.date).toLocaleDateString("en-US", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }),
+      },
+      tiers: mergedTiers,
     },
-    tiers: mergedTiers,
-  });
+    { headers: { "Cache-Control": "no-store" } }
+  );
 }
