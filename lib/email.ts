@@ -53,7 +53,7 @@ function buildTicketConfirmationHtml(d: TicketConfirmationData): string {
             <td style="background:linear-gradient(135deg,#2d0a4e,#4a1080);border-radius:12px 12px 0 0;padding:40px 32px;text-align:center;">
               <p style="margin:0 0 8px;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:#ffa5f9;">N . F . G . C O L L E C T I V E</p>
               <h1 style="margin:0;font-size:32px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">You&rsquo;re confirmed.</h1>
-              <p style="margin:12px 0 0;font-size:16px;color:#d8b4fe;">See you there, ${d.customerName.split(" ")[0]}.</p>
+              <p style="margin:12px 0 0;font-size:16px;color:#d8b4fe;">We are so excited to see you!</p>
             </td>
           </tr>
 
