@@ -10,7 +10,7 @@ export async function GET() {
   // 1. Fetch the active event + its tiers from Supabase
   const { data: event, error: eventError } = await supabaseAdmin
     .from("events")
-    .select("id, name, date, description, ticket_tiers(id, tier_key, label, description, stripe_price_id, capacity, sold, max_per_order)")
+    .select("id, name, date, description, venue, ticket_tiers(id, tier_key, label, description, stripe_price_id, capacity, sold, max_per_order)")
     .eq("is_active", true)
     .single();
 
@@ -67,6 +67,7 @@ export async function GET() {
           hour12: true,
         }),
         description: event.description,
+        venue: event.venue,
       },
       tiers: mergedTiers,
     },

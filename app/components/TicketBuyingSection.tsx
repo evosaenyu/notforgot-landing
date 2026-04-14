@@ -21,6 +21,7 @@ type EventInfo = {
   name: string;
   date: string;
   description: string;
+  venue: string;
 };
 
 type Cart = Record<string, number>;
@@ -141,11 +142,12 @@ export default function TicketBuyingSection() {
             Buy tickets to our next show:
           </h2>
           {event ? (
-            <>
+            <div className="flex flex-col gap-1">
               <span className="text-[#ffa5f9] font-semibold text-lg">{event.name}</span>
+              <span className="text-amber-200/60 text-base">{event.venue}</span>
               <p className="text-amber-200/50 text-sm mt-0.5">{event.description}</p>
-              <span className="text-amber-200/60 text-base ml-1">{event.date}</span>
-            </>
+              <span className="text-amber-200/60 text-base">{event.date}</span>
+            </div>
           ) : (
             !error && <span className="text-amber-200/30 text-sm animate-pulse">Loading…</span>
           )}
