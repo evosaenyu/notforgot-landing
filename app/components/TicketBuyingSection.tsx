@@ -192,7 +192,7 @@ export default function TicketBuyingSection() {
                   initial={{ opacity: 0, x: -12 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: i * 0.08, duration: 0.4 }}
+                  transition={{ delay: (i + 1) * 0.08, duration: 0.4 }}
                   className="flex items-center gap-4 px-5 py-4"
                 >
                   {/* Tier info */}
@@ -245,6 +245,27 @@ export default function TicketBuyingSection() {
                 </motion.div>
               );
             })}
+            {/* Static in-person tier */}
+            <motion.div
+              initial={{ opacity: 0, x: -12 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: (tiers.length + 1) * 0.08, duration: 0.4 }}
+              className="flex items-center gap-4 px-5 py-4"
+            >
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-white font-medium">In-person Tickets</span>
+                </div>
+                <p className="text-amber-200/50 text-xs mt-0.5">Purchase at the door on the day of the event</p>
+              </div>
+              <span className="text-amber-200/80 font-medium tabular-nums w-14 text-right shrink-0">
+                $25
+              </span>
+              <span className="text-amber-200/40 text-xs shrink-0 w-[88px] text-center mr-3">
+                Door only
+              </span>
+            </motion.div>
           </div>
         )}
 
