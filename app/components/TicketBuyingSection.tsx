@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
 import { Minus, Plus, Ticket } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -134,7 +135,23 @@ export default function TicketBuyingSection() {
             </span>
           </div>
         )}
-
+        {/* Event poster */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.97 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="mb-6 flex justify-center"
+        >
+          <Image
+            src="/assets/nahpartyposter.png"
+            alt="NAH Party event poster"
+            width={480}
+            height={480}
+            className="rounded-xl object-contain max-h-[420px] w-auto shadow-lg shadow-purple-950/60"
+            priority
+          />
+        </motion.div>
         {/* Header */}
         <div className="flex flex-wrap items-baseline gap-2 mb-6">
           <Ticket className="w-5 h-5 text-[#ffa5f9] flex-shrink-0 self-center" />
@@ -152,6 +169,8 @@ export default function TicketBuyingSection() {
             !error && <span className="text-amber-200/30 text-sm animate-pulse">Loading…</span>
           )}
         </div>
+
+        
 
         {/* Error state */}
         {error && (
