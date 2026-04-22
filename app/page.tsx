@@ -187,8 +187,17 @@ export default function Home() {
       <BlogSection />
       
       {/* Footer */}
-      <footer className="w-full py-6 text-center text-amber-200/50 text-sm">
-        <p>© {new Date().getFullYear()} N.F.G. Records LLC. All rights reserved.</p>
+      <footer className="relative z-10 w-full py-8 text-center text-amber-200/50 text-sm space-y-2">
+        <p>© {new Date().getFullYear()} NFG Records. All rights reserved.</p>
+        <p>
+          Contact:{" "}
+          <a
+            href="mailto:nfgnycofficial@gmail.com"
+            className="hover:text-amber-200 underline underline-offset-2 transition-colors"
+          >
+            nfgnycofficial@gmail.com
+          </a>
+        </p>
       </footer>
     </main>
   );
