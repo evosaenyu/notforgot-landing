@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 
 const spotifyEmbeds = [
   { // Fever
-    url: "https://open.spotify.com/embed/track/2DywdW4u6tIi6IorQQWNV0?utm_source=generator",
+    url: "https://open.spotify.com/embed/album/49yemuFIeCV1pc71sl5E1P?utm_source=generator",
     height: "352"
   },
   { // I'm Thinking of Leaving
