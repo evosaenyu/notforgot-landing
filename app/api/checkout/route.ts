@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
+import { DELUXE_PROMO_COOKIE, verifyDeluxePromoCookie } from "@/lib/promo-cookie";
+import { cartIsPromoEligibleOnly, getPromoEligiblePriceIds } from "@/lib/promo-eligibility";
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 const baseUrl =
@@ -33,8 +36,16 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  /** Stripe Coupon id OR Promotion Code API id (`promo_…`) — see STRIPE_PROMO_COUPON_ID. */
+  const stripePromoRef = process.env.STRIPE_PROMO_COUPON_ID?.trim();
+  const promoCookie = req.cookies.get(DELUXE_PROMO_COOKIE)?.value;
+  const hasPromoCookie = Boolean(stripePromoRef && verifyDeluxePromoCookie(promoCookie));
+  const eligiblePriceIds = hasPromoCookie ? await getPromoEligiblePriceIds() : new Set<string>();
+  const autoApplyPromo =
+    hasPromoCookie && cartIsPromoEligibleOnly(lineItems, eligiblePriceIds);
+
   try {
-    const session = await stripe.checkout.sessions.create({
+    const sessionParams: Stripe.Checkout.SessionCreateParams = {
       mode: "payment",
       line_items: lineItems.map((item) => ({
         price: item.priceId,
@@ -45,7 +56,19 @@ export async function POST(req: NextRequest) {
       // Let Stripe collect the email at checkout
       success_url: `${baseUrl}/?checkout=success`,
       cancel_url: `${baseUrl}/#tickets`,
-    });
+    };
+
+    // Stripe: `discounts` and `allow_promotion_codes` are mutually exclusive.
+    // GA promo auto-applies only for General Admission carts — other tiers checkout normally.
+    if (autoApplyPromo && stripePromoRef) {
+      sessionParams.discounts = stripePromoRef.startsWith("promo_")
+        ? [{ promotion_code: stripePromoRef }]
+        : [{ coupon: stripePromoRef }];
+    } else {
+      sessionParams.allow_promotion_codes = true;
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionParams);
 
     return NextResponse.json({ url: session.url });
   } catch (err) {

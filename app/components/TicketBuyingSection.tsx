@@ -38,6 +38,7 @@ async function startCheckout(cart: Cart, tiers: Tier[]) {
   const res = await fetch("/api/checkout", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({ lineItems }),
   });
 

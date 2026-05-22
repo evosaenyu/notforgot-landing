@@ -166,6 +166,76 @@ function buildTicketConfirmationText(d: TicketConfirmationData): string {
 }
 
 // ─── Send function ────────────────────────────────────────────────────────────
+function escapeHtmlText(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+}
+
+export async function sendDeluxeCouponSignup(
+  customerName: string,
+  customerEmail: string,
+  /** Code or ID you show subscribers (may match Stripe promo code wording). */
+  promoCodeDisplay: string
+): Promise<void> {
+  if (!process.env.SENDGRID_API_KEY || !process.env.SENDGRID_FROM_EMAIL) return;
+
+  const firstName = escapeHtmlText(customerName.trim().split(/\s+/)[0] ?? customerName.trim());
+  const safeCodeDisplay = promoCodeDisplay ? escapeHtmlText(promoCodeDisplay) : "";
+  const hasCode = Boolean(promoCodeDisplay.trim());
+
+  const msg = {
+    to: { email: customerEmail, name: customerName },
+    from: { email: FROM, name: "NFG Collective" },
+    subject: hasCode ? "Welcome to the Collective — your $5 off code" : "Welcome to the Collective",
+    text: [
+      `Hi ${customerName.trim().split(/\s+/)[0] ?? customerName.trim()},`,
+      ``,
+      `Welcome to the Collective! We'll let you know about future events, discount codes, and giveaways through here.`,
+      ``,
+      hasCode
+        ? `Your $5 off General Admission code: ${promoCodeDisplay.trim()}`
+        : null,
+      hasCode ? `Enter it at checkout when you buy tickets.` : null,
+      hasCode ? `` : null,
+      `— N.F.G. Collective`,
+    ]
+      .filter((line) => line !== null)
+      .join("\n"),
+    html: `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /></head>
+<body style="margin:0;padding:0;background-color:#1a0a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#1a0a2e;padding:40px 16px;">
+    <tr><td align="center">
+      <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#1e0a38;border-radius:12px;border:1px solid #3b1f5e;">
+        <tr><td style="padding:36px 32px;text-align:center;">
+          <p style="margin:0 0 8px;font-size:12px;letter-spacing:4px;text-transform:uppercase;color:#ffa5f9;">N.F.G. COLLECTIVE</p>
+          <h1 style="margin:0;font-size:26px;color:#ffffff;">Welcome to the Collective!</h1>
+          <p style="margin:16px 0 0;font-size:15px;color:#e9d5ff;line-height:1.6;">
+            Hey ${firstName}, we&rsquo;ll let you know about future events, discount codes, and giveaways through here.
+          </p>
+          ${
+            hasCode
+              ? `<table width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 0;">
+                  <tr><td style="border-radius:10px;border:1px solid rgba(255,165,249,0.35);background:#160830;padding:20px 24px;text-align:center;">
+                    <p style="margin:0 0 6px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#ffa5f9;">Your $5 off code</p>
+                    <p style="margin:0;font-size:28px;font-weight:700;color:#ffa5f9;letter-spacing:2px;">${safeCodeDisplay}</p>
+                    <p style="margin:12px 0 0;font-size:13px;color:#d8b4fe;line-height:1.5;">Enter this at checkout for General Admission tickets.</p>
+                  </td></tr>
+                </table>`
+              : ``
+          }
+          <p style="margin:24px 0 0;font-size:13px;color:#9d73c8;line-height:1.5;">Questions? Find us on <a href="https://www.instagram.com/nfgxcollective/" style="color:#ffa5f9;text-decoration:none;">@nfgxcollective</a>.</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`,
+  };
+
+  await sgMail.send(msg);
+}
+
 export async function sendTicketConfirmation(data: TicketConfirmationData) {
   const msg = {
     to: { email: data.customerEmail, name: data.customerName },

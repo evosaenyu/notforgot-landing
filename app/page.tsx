@@ -7,6 +7,7 @@ import EventsSection from "./components/EventsSection";
 import MusicSection from "./components/MusicSection";
 import BlogSection from "./components/BlogSection";
 import TicketBuyingSection from "./components/TicketBuyingSection";
+import PromoEmailModal from "./components/PromoEmailModal";
 import BackgroundVideo from "./components/BackgroundVideo";
 import { Button } from "@/components/ui/button";
 import { Nabla, Monda } from "next/font/google";
@@ -67,6 +68,7 @@ export default function Home() {
 
   return (
     <main className="relative bg-gradient-to-br from-purple-950 via-purple-900 to-purple-800">
+      <PromoEmailModal />
       <BackgroundVideo />
       <FloatingCircles />
 
