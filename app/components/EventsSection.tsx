@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import Image, { StaticImageData } from "next/image";
 import frasfest from "@/public/assets/frasfest.jpeg";
 import actionburg from "@/public/assets/actionburg.png";
+import soundsiege from "@/public/assets/soundsiege.png";
 import { useState } from "react";
 import FullScreenModal from "./FullScreenModal";
 
@@ -22,7 +23,14 @@ const events: EventItem[] = [];
 
 const pastEvents: EventItem[] = [
   {
-    name: "Burg & House (Album Drop Party)",
+    name: "The Sound Siege",
+    date: "March 28, 2026 - Saturday (7pm to 12am)",
+    locationName: "Sanger Hall",
+    address: "48-20 Skillman Ave, Sunnyside, NY 11104",
+    image: soundsiege,
+    ticketLink: "https://partiful.com/e/UIdZWqSF956RzHX5YCZq",
+  },
+  {name: "Burg & House (Album Drop Party)",
     date: "December 12, 2025 - Friday (7pm to 11pm)",
     locationName: "Action Burger",
     address: "292 Graham Ave, Brooklyn, NY 11211",
@@ -49,7 +57,7 @@ export default function EventsSection() {
     >
       <div className="flex flex-col md:flex-row gap-6 items-center">
         <div
-          className="w-full md:w-48 rounded-lg overflow-hidden cursor-pointer"
+          className={`w-full md:w-48 rounded-lg overflow-hidden ${isPast ? "" : "cursor-pointer"}`}
           onClick={() => !isPast && setIsModalOpen(true)}
         >
           {typeof event.image === "string" ? (

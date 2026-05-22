@@ -1,14 +1,12 @@
 "use client";
 
-import { Phone, Instagram, ChevronDown } from "lucide-react";
+import { Instagram, ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
-import PhoneInput from "react-phone-number-input";
-import "react-phone-number-input/style.css";
-import "./styles/phone-input.css";
 import FloatingCircles from "./components/FloatingCircles";
 import EventsSection from "./components/EventsSection";
 import MusicSection from "./components/MusicSection";
 import BlogSection from "./components/BlogSection";
+import TicketBuyingSection from "./components/TicketBuyingSection";
 import BackgroundVideo from "./components/BackgroundVideo";
 import { Button } from "@/components/ui/button";
 import { Nabla, Monda } from "next/font/google";
@@ -54,10 +52,7 @@ const generateRandomColors = () => {
 
 export default function Home() {
   const [scrollY, setScrollY] = useState(0);
-  const [phone, setPhone] = useState<string | undefined>();
   const [colors, setColors] = useState(["#FF6B6B", "#4ECDC4", "#45B7D1"]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
   useEffect(() => {    
     const handleScroll = () => setScrollY(window.scrollY);
@@ -66,35 +61,8 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleSubmit = async () => {
-    if (!phone || isSubmitting) return;
-  
-    setIsSubmitting(true);
-    setSubmitStatus('idle');
-    
-    try {
-      // Initialize EmailJS with the public key
-      const response = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ phone }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to send email');
-      }
-  
-      setSubmitStatus('success');
-      setPhone(undefined);
-    } catch (error) {
-      console.error('Failed to send email:', error);
-      setSubmitStatus('error');
-    } finally {
-      setIsSubmitting(false);
-    }
+  const scrollToTickets = () => {
+    document.getElementById("tickets")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -115,7 +83,7 @@ export default function Home() {
                 className="absolute"
               >
                 <span className={`text-[4.5em] animate-glow nabla-text nabla-purple ${nabla.className}`}>
-                  NOT
+                  <span className="brightness-150">N</span><span className="brightness-75">OT</span>
                 </span>
               </motion.div>
               
@@ -127,7 +95,7 @@ export default function Home() {
                 className="absolute"
               >
                 <span className={`text-[4.5em] animate-glow nabla-text nabla-purple ${nabla.className}`}>
-                  FOR
+                  <span className="brightness-150">F</span><span className="brightness-75">OR</span>
                 </span>
               </motion.div>
               
@@ -139,7 +107,7 @@ export default function Home() {
                 className="absolute"
               >
                 <span className={`text-[4.5em] animate-glow nabla-text nabla-purple ${nabla.className}`}>
-                  GOT
+                  <span className="brightness-150">G</span><span className="brightness-75">OT</span>
                 </span>
               </motion.div>
             </AnimatePresence>
@@ -152,85 +120,57 @@ export default function Home() {
             className={`text-2xl font-light tracking-wider nabla-text ${monda.className}`}
             style={{ color: "rgb(255, 188, 255)"}}
           >
-            a collective
+            the nyc collective
           </motion.h2>
 
           <motion.div
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 2, duration: 2, ease: "easeInOut" }}
-            className="relative max-w-md mx-auto"
+            className="max-w-md mx-auto"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-[#ffa5f9] via-[#FFD5FC] to-[#ffa5f9] rounded-lg blur opacity-50 animate-pulse" />
-            <div className="relative bg-purple-950/80 backdrop-blur-sm rounded-lg p-6">
-              <div className="flex flex-col gap-4">
-                <div className="flex gap-4 items-center">
-                  <Phone className="w-6 h-6 text-gray-200 flex-shrink-0" />
-                  <PhoneInput
-                    international={false}
-                    defaultCountry="US"
-                    limitMaxLength
-                    value={phone}
-                    onChange={setPhone}
-                    className="!bg-transparent text-gray-200 placeholder:text-amber-200/50 [&>input]:bg-transparent [&>input]:border-none [&>input]:focus:ring-0 [&>input]:focus:outline-none"
-                  />
-                </div>
-                <Button
-                  onClick={handleSubmit}
-                  disabled={!phone || isSubmitting}
-                  className={`w-full transition-all duration-300 ${
-                    submitStatus === 'success' 
-                      ? 'bg-green-500 hover:bg-green-600' 
-                      : submitStatus === 'error'
-                      ? 'bg-red-500 hover:bg-red-600'
-                      : 'bg-[#ffa5f9] hover:bg-[#FFD5FC]'
-                  } text-black font-medium`}
-                >
-                  {isSubmitting ? (
-                    <span className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                      Sending...
-                    </span>
-                  ) : submitStatus === 'success' ? (
-                    "Thanks! We'll text you soon"
-                  ) : submitStatus === 'error' ? (
-                    'Failed to send - Try again'
-                  ) : (
-                    "Get Updates"
-                  )}
-                </Button>
-              </div>
-            </div>
+            <Button
+              type="button"
+              onClick={scrollToTickets}
+              className="w-full bg-[#ffa5f9] hover:bg-[#FFD5FC] text-black font-medium text-lg py-6"
+            >
+              Get tickets
+            </Button>
           </motion.div>
 
-          <motion.p
+          <motion.div
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 2, duration: 2, ease: "easeInOut" }}
-            className="text-amber-200/70 max-w-lg mx-auto text-lg"
+            className="flex items-center justify-center gap-4"
           >
-            Stay in the loop on our next moves
-          </motion.p>
-
-          <motion.a 
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 2, duration: 2, ease: "easeInOut" }}
-            href="https://www.instagram.com/nfgxcollective/" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="inline-block text-amber-200/70 hover:text-amber-200"
-          >
-            <Instagram className="w-6 h-6" />
-          </motion.a>
+            <a
+              href="https://www.instagram.com/nfgxcollective/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-amber-200/70 hover:text-amber-200"
+            >
+              <Instagram className="w-6 h-6" />
+            </a>
+            <a
+              href="https://www.tiktok.com/@nfg.music"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-amber-200/70 hover:text-amber-200"
+            >
+              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/>
+              </svg>
+            </a>
+          </motion.div>
 
         </div>
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: scrollY > 0 ? 0 : 1 }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 3, delay: 5 }}
           className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer"
-          onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+          onClick={scrollToTickets}
         >
           <motion.div
             animate={{ y: [0, 10, 0] }}
@@ -241,13 +181,23 @@ export default function Home() {
         </motion.div>
       </section>
 
+      <TicketBuyingSection />
       <EventsSection />
       <MusicSection />
       <BlogSection />
       
       {/* Footer */}
-      <footer className="w-full py-6 text-center text-amber-200/50 text-sm">
-        <p>© {new Date().getFullYear()} N.F.G. Records LLC. All rights reserved.</p>
+      <footer className="relative z-10 w-full py-8 text-center text-amber-200/50 text-sm space-y-2">
+        <p>© {new Date().getFullYear()} NFG Records. All rights reserved.</p>
+        <p>
+          Contact:{" "}
+          <a
+            href="mailto:nfgnycofficial@gmail.com"
+            className="hover:text-amber-200 underline underline-offset-2 transition-colors"
+          >
+            nfgnycofficial@gmail.com
+          </a>
+        </p>
       </footer>
     </main>
   );
