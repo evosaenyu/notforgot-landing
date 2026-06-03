@@ -8,6 +8,7 @@ import MusicSection from "./components/MusicSection";
 import BlogSection from "./components/BlogSection";
 import TicketBuyingSection from "./components/TicketBuyingSection";
 import PromoEmailModal from "./components/PromoEmailModal";
+import { isTicketSalesEnabled } from "@/lib/ticket-sales";
 import BackgroundVideo from "./components/BackgroundVideo";
 import { Button } from "@/components/ui/button";
 import { Nabla, Monda } from "next/font/google";
@@ -50,6 +51,8 @@ const generateRandomColors = () => {
   const shuffled = [...colors].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, 3);
 };
+
+const ticketSalesEnabled = isTicketSalesEnabled();
 
 export default function Home() {
   const [scrollY, setScrollY] = useState(0);
@@ -125,20 +128,22 @@ export default function Home() {
             the nyc collective
           </motion.h2>
 
-          <motion.div
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 2, duration: 2, ease: "easeInOut" }}
-            className="max-w-md mx-auto"
-          >
-            <Button
-              type="button"
-              onClick={scrollToTickets}
-              className="w-full bg-[#ffa5f9] hover:bg-[#FFD5FC] text-black font-medium text-lg py-6"
+          {ticketSalesEnabled && (
+            <motion.div
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 2, duration: 2, ease: "easeInOut" }}
+              className="max-w-md mx-auto"
             >
-              Get tickets
-            </Button>
-          </motion.div>
+              <Button
+                type="button"
+                onClick={scrollToTickets}
+                className="w-full bg-[#ffa5f9] hover:bg-[#FFD5FC] text-black font-medium text-lg py-6"
+              >
+                Get tickets
+              </Button>
+            </motion.div>
+          )}
 
           <motion.div
             initial={{ opacity: 0, y: 100 }}
@@ -167,20 +172,22 @@ export default function Home() {
           </motion.div>
 
         </div>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: scrollY > 0 ? 0 : 1 }}
-          transition={{ duration: 3, delay: 5 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer"
-          onClick={scrollToTickets}
-        >
+        {ticketSalesEnabled && (
           <motion.div
-            animate={{ y: [0, 10, 0] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: scrollY > 0 ? 0 : 1 }}
+            transition={{ duration: 3, delay: 5 }}
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer"
+            onClick={scrollToTickets}
           >
-            <ChevronDown className="w-6 h-6 text-amber-200/70" />
+            <motion.div
+              animate={{ y: [0, 10, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <ChevronDown className="w-6 h-6 text-amber-200/70" />
+            </motion.div>
           </motion.div>
-        </motion.div>
+        )}
       </section>
 
       <TicketBuyingSection />

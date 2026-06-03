@@ -5,6 +5,9 @@ import { useEffect, useState, useRef } from "react";
 import { Minus, Plus, Ticket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { isTicketSalesEnabled } from "@/lib/ticket-sales";
+
+const ticketSalesEnabled = isTicketSalesEnabled();
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type Tier = {
@@ -80,10 +83,10 @@ export default function TicketBuyingSection() {
       .then((r) => r.json())
       .then((data) => {
         if (data.error) { setError(data.error); return; }
-        setEvent(data.event);
-        setTiers(data.tiers);
+        setEvent(data.event ?? null);
+        setTiers(data.tiers ?? []);
         const initial: Cart = {};
-        data.tiers.forEach((t: Tier) => { initial[t.id] = 0; });
+        (data.tiers ?? []).forEach((t: Tier) => { initial[t.id] = 0; });
         setCart(initial);
       })
       .catch(() => setError("Failed to load tickets"))
@@ -100,6 +103,9 @@ export default function TicketBuyingSection() {
 
   const totalQty = Object.values(cart).reduce((a, b) => a + b, 0);
   const totalPrice = tiers.reduce((sum, t) => sum + (cart[t.id] ?? 0) * t.price, 0);
+
+  const canPurchase =
+    ticketSalesEnabled && event !== null && tiers.length > 0;
 
   const handleCheckout = async () => {
     if (totalQty === 0 || isCheckingOut) return;
@@ -157,9 +163,9 @@ export default function TicketBuyingSection() {
         <div className="flex flex-wrap items-baseline gap-2 mb-6">
           <Ticket className="w-5 h-5 text-[#ffa5f9] flex-shrink-0 self-center" />
           <h2 className="text-white font-semibold text-lg">
-            Buy tickets to our next show:
+            {canPurchase ? "Buy tickets to our next show:" : "Thank you"}
           </h2>
-          {event ? (
+          {event && canPurchase ? (
             <div className="flex flex-col gap-1">
               <span className="text-[#ffa5f9] font-semibold text-lg">{event.name}</span>
               <span className="text-amber-200/60 text-base">{event.venue}</span>
@@ -167,11 +173,17 @@ export default function TicketBuyingSection() {
               <span className="text-amber-200/60 text-base">{event.date}</span>
             </div>
           ) : (
-            !error && <span className="text-amber-200/30 text-sm animate-pulse">Loading…</span>
+            !error && isLoadingData && (
+              <span className="text-amber-200/30 text-sm animate-pulse">Loading…</span>
+            )
           )}
         </div>
 
-        
+        {!isLoadingData && !error && !canPurchase && (
+          <p className="text-amber-200/70 text-center text-base mb-6">
+            We had such a blast with you at the last event!
+          </p>
+        )}
 
         {/* Error state */}
         {error && (
@@ -179,7 +191,7 @@ export default function TicketBuyingSection() {
         )}
 
         {/* Loading skeleton */}
-        {isLoadingData && !error && (
+        {isLoadingData && !error && canPurchase && (
           <div className="rounded-xl border border-amber-200/10 bg-purple-950/40 overflow-hidden divide-y divide-amber-200/10">
             {[1, 2, 3].map((i) => (
               <div key={i} className="flex items-center gap-4 px-5 py-4 animate-pulse">
@@ -199,7 +211,7 @@ export default function TicketBuyingSection() {
         )}
 
         {/* Ticket tiers */}
-        {!isLoadingData && !error && tiers.length > 0 && (
+        {!isLoadingData && !error && canPurchase && tiers.length > 0 && (
           <div className="rounded-xl border border-amber-200/10 bg-purple-950/40 backdrop-blur-sm overflow-hidden divide-y divide-amber-200/10">
             {tiers.map((tier, i) => {
               const qty = cart[tier.id] ?? 0;
@@ -290,7 +302,7 @@ export default function TicketBuyingSection() {
         )}
 
         {/* Footer / checkout */}
-        {!isLoadingData && !error && (
+        {!isLoadingData && !error && canPurchase && (
           <div className="mt-4 flex items-center justify-between gap-4">
             <div className="text-amber-200/50 text-sm">
               {totalQty > 0 ? (

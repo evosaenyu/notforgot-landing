@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { formatEventDate } from "@/lib/ticket-sales";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
@@ -7,18 +8,23 @@ export const dynamic = "force-dynamic";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function GET() {
-  // 1. Fetch the active event + its tiers from Supabase
   const { data: event, error: eventError } = await supabaseAdmin
     .from("events")
     .select("id, name, date, description, venue, ticket_tiers(id, tier_key, label, description, stripe_price_id, capacity, sold, max_per_order)")
     .eq("is_active", true)
-    .single();
+    .maybeSingle();
 
-  if (eventError || !event) {
-    return NextResponse.json({ error: "No active event found" }, { status: 404 });
+  if (eventError) {
+    return NextResponse.json({ error: "Failed to load event" }, { status: 500 });
   }
 
-  // 2. Batch-fetch prices from Stripe
+  if (!event) {
+    return NextResponse.json(
+      { event: null, tiers: [] },
+      { headers: { "Cache-Control": "no-store" } }
+    );
+  }
+
   const tiers = event.ticket_tiers as {
     id: string;
     tier_key: string;
@@ -38,34 +44,24 @@ export async function GET() {
     stripePrices.map((p) => [p.id, p.unit_amount ?? 0])
   );
 
-  // 3. Merge and return
   const mergedTiers = tiers.map((tier) => ({
     id: tier.tier_key,
     tierId: tier.id,
     label: tier.label,
     description: tier.description,
     priceId: tier.stripe_price_id,
-    price: (priceMap[tier.stripe_price_id] ?? 0) / 100, // cents → dollars
+    price: (priceMap[tier.stripe_price_id] ?? 0) / 100,
     remaining: tier.capacity - tier.sold,
     max: tier.max_per_order,
   }));
 
-  // Sort by price ascending (Early Bird → General → VIP)
   mergedTiers.sort((a, b) => a.price - b.price);
 
   return NextResponse.json(
     {
       event: {
         name: event.name,
-        date: new Date(event.date).toLocaleDateString("en-US", {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true,
-        }),
+        date: formatEventDate(event.date),
         description: event.description,
         venue: event.venue,
       },

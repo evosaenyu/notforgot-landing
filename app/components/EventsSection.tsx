@@ -7,6 +7,7 @@ import Image, { StaticImageData } from "next/image";
 import frasfest from "@/public/assets/frasfest.jpeg";
 import actionburg from "@/public/assets/actionburg.png";
 import soundsiege from "@/public/assets/soundsiege.png";
+import nahpartyposter from "@/public/assets/nahpartyposter.png";
 import { useState } from "react";
 import FullScreenModal from "./FullScreenModal";
 
@@ -22,6 +23,14 @@ interface EventItem {
 const events: EventItem[] = [];
 
 const pastEvents: EventItem[] = [
+  {
+    name: "NAH! Album Release Party",
+    date: "May 31, 2026 - Sunday (6:30pm doors, 7pm show)",
+    locationName: "Sanger Hall",
+    address: "48-20 Skillman Ave, Sunnyside, NY 11104",
+    image: nahpartyposter,
+    ticketLink: "https://not-forgot.com",
+  },
   {
     name: "The Sound Siege",
     date: "March 28, 2026 - Saturday (7pm to 12am)",
