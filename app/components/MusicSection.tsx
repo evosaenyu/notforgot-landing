@@ -3,6 +3,11 @@
 import { Card } from "@/components/ui/card";
 
 const spotifyEmbeds = [
+
+  { // fukdatjob
+    url: "https://open.spotify.com/embed/track/4ysck1it0k52BajynCJt7v?utm_source=generator",
+    height: "352"
+  },
   { // i did it
     url: "https://open.spotify.com/embed/track/7cBq5e8GSBZrPVZM0pT6nP?utm_source=generator",
     height: "352"
