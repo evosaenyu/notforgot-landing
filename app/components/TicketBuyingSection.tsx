@@ -151,8 +151,8 @@ export default function TicketBuyingSection() {
           className="mb-6 flex justify-center"
         >
           <Image
-            src="/assets/nahpartyposter.png"
-            alt="NAH Party event poster"
+            src="/assets/Nfgsab.png"
+            alt="Help Save Super Action Burger event poster"
             width={480}
             height={480}
             className="rounded-xl object-contain max-h-[420px] w-auto shadow-lg shadow-purple-950/60"
@@ -277,7 +277,7 @@ export default function TicketBuyingSection() {
                 </motion.div>
               );
             })}
-            {/* Static in-person tier */}
+            {/* Static in-person tier
             <motion.div
               initial={{ opacity: 0, x: -12 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -297,7 +297,7 @@ export default function TicketBuyingSection() {
               <span className="text-amber-200/40 text-xs shrink-0 w-[88px] text-center mr-3">
                 Door only
               </span>
-            </motion.div>
+            </motion.div> */}
           </div>
         )}
 

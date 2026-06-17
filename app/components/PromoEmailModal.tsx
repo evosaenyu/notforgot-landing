@@ -87,7 +87,7 @@ export default function PromoEmailModal() {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-[420px] border border-amber-200/15 bg-purple-950/95 text-amber-100 shadow-xl shadow-purple-950/70 sm:rounded-xl">
         <DialogHeader className="space-y-2 text-left">
-          <DialogTitle className="text-xl text-white tracking-tight">$5 off General Admission</DialogTitle>
+          <DialogTitle className="text-xl text-white tracking-tight">$5 off Early Bird or General Admission</DialogTitle>
           <DialogDescription className="text-amber-200/70 leading-relaxed">
             Drop your name and email and we&apos;ll send your coupon. You&apos;ll see your code below too.
           </DialogDescription>
@@ -142,9 +142,9 @@ export default function PromoEmailModal() {
             {(couponDisplay || FALLBACK_PROMO_DISPLAY).trim() ? (
               <>
                 <p className="text-amber-100/90 text-sm leading-relaxed">
-                  Check your inbox for details. Save this code for General Admission checkout
+                  Check your inbox for details. Save this code for Early Bird or General Admission checkout
                   {autoUnlock
-                    ? " — from this browser, your $5 off may apply automatically when you buy General Admission."
+                    ? " — from this browser, your $5 off may apply automatically when you buy Early Bird or General Admission."
                     : "."}
                 </p>
                 <div className="rounded-lg border border-[#ffa5f9]/30 bg-purple-950/60 px-4 py-3 text-center">
@@ -160,8 +160,8 @@ export default function PromoEmailModal() {
               <p className="text-amber-100/90 text-sm leading-relaxed">
                 Check your inbox — we emailed your promo code.
                 {autoUnlock
-                  ? " From this browser it may apply automatically when you buy General Admission."
-                  : " Enter it during checkout when buying General Admission."}
+                  ? " From this browser it may apply automatically when you buy Early Bird or General Admission."
+                  : " Enter it during checkout when buying Early Bird or General Admission."}
               </p>
             )}
             <Button

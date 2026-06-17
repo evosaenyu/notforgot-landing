@@ -192,9 +192,11 @@ export async function sendDeluxeCouponSignup(
       `Welcome to the Collective! We'll let you know about future events, discount codes, and giveaways through here.`,
       ``,
       hasCode
-        ? `Your $5 off General Admission code: ${promoCodeDisplay.trim()}`
+        ? `Your $5 off Early Bird or General Admission code: ${promoCodeDisplay.trim()}`
         : null,
-      hasCode ? `Enter it at checkout when you buy tickets.` : null,
+      hasCode
+        ? `Enter it at checkout when you buy Early Bird or General Admission tickets.`
+        : null,
       hasCode ? `` : null,
       `— N.F.G. Collective`,
     ]
@@ -219,7 +221,7 @@ export async function sendDeluxeCouponSignup(
                   <tr><td style="border-radius:10px;border:1px solid rgba(255,165,249,0.35);background:#160830;padding:20px 24px;text-align:center;">
                     <p style="margin:0 0 6px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#ffa5f9;">Your $5 off code</p>
                     <p style="margin:0;font-size:28px;font-weight:700;color:#ffa5f9;letter-spacing:2px;">${safeCodeDisplay}</p>
-                    <p style="margin:12px 0 0;font-size:13px;color:#d8b4fe;line-height:1.5;">Enter this at checkout for General Admission tickets.</p>
+                    <p style="margin:12px 0 0;font-size:13px;color:#d8b4fe;line-height:1.5;">Enter this at checkout for Early Bird or General Admission tickets.</p>
                   </td></tr>
                 </table>`
               : ``
