@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+const PROMO_MODAL_ENABLED = false;
+
 /** Once shown or dismissed, do not show again (years). */
 const MODAL_SEEN_COOKIE = "nfg_email_promo_modal_seen";
 const COOKIE_MAX_AGE_DAYS = 400;
@@ -38,10 +40,12 @@ export default function PromoEmailModal() {
   const [autoUnlock, setAutoUnlock] = useState(false);
 
   useEffect(() => {
-    if (getCookie(MODAL_SEEN_COOKIE)) return undefined;
+    if (!PROMO_MODAL_ENABLED || getCookie(MODAL_SEEN_COOKIE)) return undefined;
     const timer = window.setTimeout(() => setOpen(true), 1400);
     return () => window.clearTimeout(timer);
   }, []);
+
+  if (!PROMO_MODAL_ENABLED) return null;
 
   const handleClose = (): void => {
     setSeenCookie();
