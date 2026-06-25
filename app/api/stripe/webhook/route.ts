@@ -72,7 +72,8 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   }
 
   // ── 2. Upsert order_items + decrement sold counts ────────────────────────
-  for (const [index, item] of lineItems.entries()) {
+  for (let index = 0; index < lineItems.length; index++) {
+    const item = lineItems[index];
     const stripePrice = item.price;
     if (!stripePrice) continue;
 
