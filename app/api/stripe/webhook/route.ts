@@ -44,6 +44,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   });
 
   const lineItems = full.line_items?.data ?? [];
+  const tierIdsFromMeta = full.metadata?.tier_ids?.split(",").filter(Boolean) ?? [];
   const customerEmail = full.customer_details?.email ?? null;
   const customerName = full.customer_details?.name ?? "Guest";
   const customerPhone = full.customer_details?.phone ?? null;
@@ -71,15 +72,27 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   }
 
   // ── 2. Upsert order_items + decrement sold counts ────────────────────────
-  for (const item of lineItems) {
+  for (const [index, item] of lineItems.entries()) {
     const stripePrice = item.price;
     if (!stripePrice) continue;
 
-    const { data: tier } = await supabaseAdmin
+    let tier: { id: string; sold: number } | null = null;
+
+    const { data: tierByPrice } = await supabaseAdmin
       .from("ticket_tiers")
       .select("id, sold")
       .eq("stripe_price_id", stripePrice.id)
-      .single();
+      .maybeSingle();
+    tier = tierByPrice;
+
+    if (!tier && tierIdsFromMeta[index]) {
+      const { data: tierByMeta } = await supabaseAdmin
+        .from("ticket_tiers")
+        .select("id, sold")
+        .eq("id", tierIdsFromMeta[index])
+        .maybeSingle();
+      tier = tierByMeta;
+    }
 
     if (!tier) {
       console.warn("[webhook] no tier found for price:", stripePrice.id);

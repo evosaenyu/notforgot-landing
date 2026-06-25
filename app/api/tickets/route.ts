@@ -40,22 +40,38 @@ export async function GET() {
   const stripePrices = await Promise.all(
     priceIds.map((id) => stripe.prices.retrieve(id))
   );
-  const priceMap = Object.fromEntries(
-    stripePrices.map((p) => [p.id, p.unit_amount ?? 0])
-  );
+  const priceById = Object.fromEntries(stripePrices.map((p) => [p.id, p]));
 
-  const mergedTiers = tiers.map((tier) => ({
-    id: tier.tier_key,
-    tierId: tier.id,
-    label: tier.label,
-    description: tier.description,
-    priceId: tier.stripe_price_id,
-    price: (priceMap[tier.stripe_price_id] ?? 0) / 100,
-    remaining: tier.capacity - tier.sold,
-    max: tier.max_per_order,
-  }));
+  const mergedTiers = tiers.map((tier) => {
+    const stripePrice = priceById[tier.stripe_price_id];
+    const customAmount = stripePrice?.custom_unit_amount;
+    const isPayWhatYouWant = customAmount != null;
+    const unitAmount =
+      stripePrice?.unit_amount ??
+      customAmount?.preset ??
+      customAmount?.minimum ??
+      0;
 
-  mergedTiers.sort((a, b) => a.price - b.price);
+    return {
+      id: tier.tier_key,
+      tierId: tier.id,
+      label: tier.label,
+      description: tier.description,
+      priceId: tier.stripe_price_id,
+      price: unitAmount / 100,
+      isPayWhatYouWant,
+      payWhatYouWantMinimum: (customAmount?.minimum ?? 0) / 100,
+      remaining: tier.capacity - tier.sold,
+      max: tier.max_per_order,
+    };
+  });
+
+  mergedTiers.sort((a, b) => {
+    if (a.isPayWhatYouWant !== b.isPayWhatYouWant) {
+      return a.isPayWhatYouWant ? 1 : -1;
+    }
+    return a.price - b.price;
+  });
 
   return NextResponse.json(
     {

@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
-import { Minus, Plus, Ticket } from "lucide-react";
+import { Minus, Plus, Ticket, ArrowLeft, Heart, TicketCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import { isTicketSalesEnabled } from "@/lib/ticket-sales";
 
@@ -17,6 +19,8 @@ type Tier = {
   description: string;
   priceId: string;
   price: number;
+  isPayWhatYouWant?: boolean;
+  payWhatYouWantMinimum?: number;
   remaining: number;
   max: number;
 };
@@ -29,6 +33,24 @@ type EventInfo = {
 };
 
 type Cart = Record<string, number>;
+type AttendanceChoice = "free" | "donate";
+
+async function submitFreeRsvp(payload: {
+  name: string;
+  email: string;
+  phone: string;
+  tierKey: string;
+}) {
+  const res = await fetch("/api/rsvp", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
+  if (!res.ok || !data.ok) {
+    throw new Error(data.error || "Failed to submit RSVP");
+  }
+}
 
 // ─── Stripe checkout ─────────────────────────────────────────────────────────
 async function startCheckout(cart: Cart, tiers: Tier[]) {
@@ -64,15 +86,23 @@ export default function TicketBuyingSection() {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [attendanceChoice, setAttendanceChoice] = useState<AttendanceChoice | null>(null);
+  const [rsvpName, setRsvpName] = useState("");
+  const [rsvpEmail, setRsvpEmail] = useState("");
+  const [rsvpPhone, setRsvpPhone] = useState("");
+  const [isSubmittingRsvp, setIsSubmittingRsvp] = useState(false);
+  const [rsvpError, setRsvpError] = useState<string | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
 
-  // Detect ?checkout=success return from Stripe
+  const pwywTier = tiers.find((t) => t.isPayWhatYouWant) ?? null;
+  const isPwywOnly = tiers.length > 0 && tiers.every((t) => t.isPayWhatYouWant);
+
+  // Detect ?checkout=success or ?rsvp=success return
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
-    if (params.get("checkout") === "success") {
+    if (params.get("checkout") === "success" || params.get("rsvp") === "success") {
       setShowSuccess(true);
-      // Clean the query param from the URL without a reload
       window.history.replaceState({}, "", window.location.pathname + "#tickets");
       sectionRef.current?.scrollIntoView({ behavior: "smooth" });
     }
@@ -102,6 +132,7 @@ export default function TicketBuyingSection() {
   };
 
   const totalQty = Object.values(cart).reduce((a, b) => a + b, 0);
+  const hasPayWhatYouWant = tiers.some((t) => t.isPayWhatYouWant && (cart[t.id] ?? 0) > 0);
   const totalPrice = tiers.reduce((sum, t) => sum + (cart[t.id] ?? 0) * t.price, 0);
 
   const canPurchase =
@@ -113,12 +144,62 @@ export default function TicketBuyingSection() {
     setCheckoutError(null);
     try {
       await startCheckout(cart, tiers);
-      // If we reach here, the redirect didn't happen — shouldn't occur normally
     } catch (err) {
       setCheckoutError(err instanceof Error ? err.message : "Something went wrong");
       setIsCheckingOut(false);
     }
   };
+
+  const selectDonate = () => {
+    if (!pwywTier) return;
+    setAttendanceChoice("donate");
+    setCart({ [pwywTier.id]: 1 });
+    setCheckoutError(null);
+  };
+
+  const selectFree = () => {
+    setAttendanceChoice("free");
+    setRsvpError(null);
+  };
+
+  const resetChoice = () => {
+    setAttendanceChoice(null);
+    setRsvpName("");
+    setRsvpEmail("");
+    setRsvpPhone("");
+    setRsvpError(null);
+    setCheckoutError(null);
+    const initial: Cart = {};
+    tiers.forEach((t) => { initial[t.id] = 0; });
+    setCart(initial);
+  };
+
+  const handleFreeRsvp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!pwywTier || isSubmittingRsvp) return;
+    setIsSubmittingRsvp(true);
+    setRsvpError(null);
+    try {
+      await submitFreeRsvp({
+        name: rsvpName,
+        email: rsvpEmail,
+        phone: rsvpPhone,
+        tierKey: pwywTier.id,
+      });
+      setShowSuccess(true);
+      resetChoice();
+      sectionRef.current?.scrollIntoView({ behavior: "smooth" });
+    } catch (err) {
+      setRsvpError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setIsSubmittingRsvp(false);
+    }
+  };
+
+  const pwywMinLabel =
+    pwywTier?.payWhatYouWantMinimum != null
+      ? `$${pwywTier.payWhatYouWantMinimum}+`
+      : "You choose";
 
   return (
     <section
@@ -210,8 +291,164 @@ export default function TicketBuyingSection() {
           </div>
         )}
 
-        {/* Ticket tiers */}
-        {!isLoadingData && !error && canPurchase && tiers.length > 0 && (
+        {/* PWYW: choose free RSVP vs donate before checkout */}
+        {!isLoadingData && !error && canPurchase && isPwywOnly && pwywTier && !attendanceChoice && (
+          <div className="rounded-xl border border-amber-200/10 bg-purple-950/40 backdrop-blur-sm overflow-hidden p-5 space-y-4">
+            <p className="text-white font-medium text-center">
+              How would you like to attend?
+            </p>
+            <p className="text-amber-200/50 text-xs text-center -mt-2">
+              Every guest helps us pack the house for Super Action Burger.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={selectFree}
+                className="rounded-lg border border-amber-200/20 bg-purple-950/60 px-4 py-5 text-left hover:border-[#ffa5f9] hover:bg-purple-900/40 transition-colors"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <TicketCheck className="w-4 h-4 text-[#ffa5f9]" />
+                  <span className="text-white font-medium">Free RSVP</span>
+                </div>
+                <p className="text-amber-200/50 text-xs leading-relaxed">
+                  Reserve your spot at no cost. No payment required.
+                </p>
+              </button>
+              <button
+                type="button"
+                onClick={selectDonate}
+                disabled={pwywTier.remaining === 0}
+                className="rounded-lg border border-amber-200/20 bg-purple-950/60 px-4 py-5 text-left hover:border-[#ffa5f9] hover:bg-purple-900/40 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <Heart className="w-4 h-4 text-[#ffa5f9]" />
+                  <span className="text-white font-medium">Donate &amp; attend</span>
+                </div>
+                <p className="text-amber-200/50 text-xs leading-relaxed">
+                  Pay what you want ({pwywMinLabel} min) to support the fundraiser.
+                </p>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* PWYW: free RSVP form */}
+        {!isLoadingData && !error && canPurchase && isPwywOnly && pwywTier && attendanceChoice === "free" && (
+          <form
+            onSubmit={handleFreeRsvp}
+            className="rounded-xl border border-amber-200/10 bg-purple-950/40 backdrop-blur-sm overflow-hidden p-5 space-y-4"
+          >
+            <button
+              type="button"
+              onClick={resetChoice}
+              className="flex items-center gap-1.5 text-amber-200/60 text-xs hover:text-[#ffa5f9] transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Back
+            </button>
+            <div>
+              <h3 className="text-white font-medium">Free RSVP</h3>
+              <p className="text-amber-200/50 text-xs mt-1">
+                Tell us who&apos;s coming — we&apos;ll email your confirmation.
+              </p>
+            </div>
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="rsvp-name" className="text-amber-200/70">Name</Label>
+                <Input
+                  id="rsvp-name"
+                  value={rsvpName}
+                  onChange={(e) => setRsvpName(e.target.value)}
+                  required
+                  className="border-amber-200/20 bg-purple-950/60 text-white"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="rsvp-email" className="text-amber-200/70">Email</Label>
+                <Input
+                  id="rsvp-email"
+                  type="email"
+                  value={rsvpEmail}
+                  onChange={(e) => setRsvpEmail(e.target.value)}
+                  required
+                  className="border-amber-200/20 bg-purple-950/60 text-white"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="rsvp-phone" className="text-amber-200/70">Phone</Label>
+                <Input
+                  id="rsvp-phone"
+                  type="tel"
+                  value={rsvpPhone}
+                  onChange={(e) => setRsvpPhone(e.target.value)}
+                  required
+                  className="border-amber-200/20 bg-purple-950/60 text-white"
+                />
+              </div>
+            </div>
+            {rsvpError && <p className="text-red-400/80 text-xs">{rsvpError}</p>}
+            <Button
+              type="submit"
+              disabled={isSubmittingRsvp}
+              className="w-full bg-[#ffa5f9] hover:bg-[#FFD5FC] text-black font-semibold disabled:opacity-40"
+            >
+              {isSubmittingRsvp ? "Submitting…" : "Confirm free RSVP"}
+            </Button>
+          </form>
+        )}
+
+        {/* PWYW: donate checkout */}
+        {!isLoadingData && !error && canPurchase && isPwywOnly && pwywTier && attendanceChoice === "donate" && (
+          <div className="rounded-xl border border-amber-200/10 bg-purple-950/40 backdrop-blur-sm overflow-hidden divide-y divide-amber-200/10">
+            <div className="px-5 py-4">
+              <button
+                type="button"
+                onClick={resetChoice}
+                className="flex items-center gap-1.5 text-amber-200/60 text-xs hover:text-[#ffa5f9] transition-colors mb-4"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                Back
+              </button>
+              <div className="flex items-center gap-4">
+                <div className="flex-1 min-w-0">
+                  <span className="text-white font-medium">{pwywTier.label}</span>
+                  <p className="text-amber-200/50 text-xs mt-0.5">
+                    Choose your donation at checkout ({pwywMinLabel} minimum).
+                  </p>
+                </div>
+                <span className="text-amber-200/80 font-medium tabular-nums shrink-0">
+                  {pwywMinLabel}
+                </span>
+              </div>
+            </div>
+            <div className="px-5 py-4 flex items-center justify-between gap-4">
+              <p className="text-amber-200/50 text-sm">
+                1 ticket &mdash;{" "}
+                <span className="text-[#ffa5f9] font-semibold">amount chosen at checkout</span>
+              </p>
+              {checkoutError && (
+                <p className="text-red-400/80 text-xs">{checkoutError}</p>
+              )}
+              <Button
+                onClick={handleCheckout}
+                disabled={isCheckingOut || pwywTier.remaining === 0}
+                className="bg-[#ffa5f9] hover:bg-[#FFD5FC] text-black font-semibold px-8 disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0"
+              >
+                {isCheckingOut ? (
+                  <span className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                    Loading…
+                  </span>
+                ) : (
+                  "Continue to checkout"
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Standard ticket tiers (non-PWYW events) */}
+        {!isLoadingData && !error && canPurchase && !isPwywOnly && tiers.length > 0 && (
           <div className="rounded-xl border border-amber-200/10 bg-purple-950/40 backdrop-blur-sm overflow-hidden divide-y divide-amber-200/10">
             {tiers.map((tier, i) => {
               const qty = cart[tier.id] ?? 0;
@@ -247,7 +484,13 @@ export default function TicketBuyingSection() {
 
                   {/* Price — from Stripe */}
                   <span className="text-amber-200/80 font-medium tabular-nums w-14 text-right shrink-0">
-                    ${tier.price}
+                    {tier.isPayWhatYouWant ? (
+                      tier.payWhatYouWantMinimum != null
+                        ? `$${tier.payWhatYouWantMinimum}+`
+                        : "You choose"
+                    ) : (
+                      `$${tier.price}`
+                    )}
                   </span>
 
                   {/* Qty controls */}
@@ -301,15 +544,19 @@ export default function TicketBuyingSection() {
           </div>
         )}
 
-        {/* Footer / checkout */}
-        {!isLoadingData && !error && canPurchase && (
+        {/* Footer / checkout (non-PWYW events) */}
+        {!isLoadingData && !error && canPurchase && !isPwywOnly && (
           <div className="mt-4 flex items-center justify-between gap-4">
             <div className="text-amber-200/50 text-sm">
               {totalQty > 0 ? (
                 <>
                   <span className="text-white font-medium">{totalQty}</span>{" "}
-                  {totalQty === 1 ? "ticket" : "tickets"} &mdash;{" "}
-                  <span className="text-[#ffa5f9] font-semibold">${totalPrice}</span>
+                  {totalQty === 1 ? "ticket" : "tickets"}
+                  {hasPayWhatYouWant ? (
+                    <> &mdash; <span className="text-[#ffa5f9] font-semibold">amount chosen at checkout</span></>
+                  ) : (
+                    <> &mdash; <span className="text-[#ffa5f9] font-semibold">${totalPrice}</span></>
+                  )}
                 </>
               ) : (
                 "No tickets selected"

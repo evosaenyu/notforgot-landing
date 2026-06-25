@@ -44,6 +44,12 @@ export async function POST(req: NextRequest) {
   const autoApplyPromo =
     hasPromoCookie && cartIsPromoEligibleOnly(lineItems, eligiblePriceIds);
 
+  const priceIds = Array.from(new Set(lineItems.map((item) => item.priceId)));
+  const stripePrices = await Promise.all(
+    priceIds.map((id) => stripe.prices.retrieve(id))
+  );
+  const hasCustomUnitAmount = stripePrices.some((p) => p.custom_unit_amount != null);
+
   try {
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       mode: "payment",
@@ -59,13 +65,15 @@ export async function POST(req: NextRequest) {
     };
 
     // Stripe: `discounts` and `allow_promotion_codes` are mutually exclusive.
-    // GA promo auto-applies only for General Admission carts — other tiers checkout normally.
-    if (autoApplyPromo && stripePromoRef) {
-      sessionParams.discounts = stripePromoRef.startsWith("promo_")
-        ? [{ promotion_code: stripePromoRef }]
-        : [{ coupon: stripePromoRef }];
-    } else {
-      sessionParams.allow_promotion_codes = true;
+    // Pay-what-you-want prices (`custom_unit_amount`) cannot use promotion codes at all.
+    if (!hasCustomUnitAmount) {
+      if (autoApplyPromo && stripePromoRef) {
+        sessionParams.discounts = stripePromoRef.startsWith("promo_")
+          ? [{ promotion_code: stripePromoRef }]
+          : [{ coupon: stripePromoRef }];
+      } else {
+        sessionParams.allow_promotion_codes = true;
+      }
     }
 
     const session = await stripe.checkout.sessions.create(sessionParams);
