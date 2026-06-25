@@ -298,7 +298,7 @@ export default function TicketBuyingSection() {
               How would you like to attend?
             </p>
             <p className="text-amber-200/50 text-xs text-center -mt-2">
-              Every guest helps us pack the house for Super Action Burger.
+              Donating is fully optional, so pull thru if you can!
             </p>
             <div className="grid gap-3 sm:grid-cols-2">
               <button
