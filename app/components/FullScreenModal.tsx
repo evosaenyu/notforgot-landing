@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import Image from "next/image";
-import frasfest from "@/public/assets/frasfest.jpeg";
+import frasfestontour from "@/public/assets/frasfestontour.jpg";
 
 interface FullScreenModalProps {
   isOpen: boolean;
@@ -30,8 +30,8 @@ export default function FullScreenModal({ isOpen, onClose }: FullScreenModalProp
       </button>
       <div className="max-w-4xl w-full" onClick={e => e.stopPropagation()}>
         <Image
-          src={frasfest}
-          alt="Event"
+          src={frasfestontour}
+          alt="FRAS FEST ON TOUR"
           className="w-full h-auto rounded-lg"
           width={1200}
           height={1500}

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Image, { StaticImageData } from "next/image";
 import frasfest from "@/public/assets/frasfest.jpeg";
+import frasfestontour from "@/public/assets/frasfestontour.jpg";
 import actionburg from "@/public/assets/actionburg.png";
 import soundsiege from "@/public/assets/soundsiege.png";
 import nahpartyposter from "@/public/assets/nahpartyposter.png";
@@ -20,7 +21,16 @@ interface EventItem {
   ticketLink: string;
 }
 
-const events: EventItem[] = [];
+const events: EventItem[] = [
+  {
+    name: "FRAS FEST ON TOUR",
+    date: "August 30, 2026 - Sunday (5:00pm show)",
+    locationName: "Sanger Hall",
+    address: "48-20 Skillman Ave, Sunnyside, NY 11104",
+    image: frasfestontour,
+    ticketLink: "https://partiful.com/e/vWDEqX9Zi3D86rL0jIfT",
+  },
+];
 
 const pastEvents: EventItem[] = [
   {

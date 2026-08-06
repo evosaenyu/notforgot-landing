@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { isTicketSalesEnabled } from "@/lib/ticket-sales";
 
 const ticketSalesEnabled = isTicketSalesEnabled();
+const PARTIFUL_RSVP_URL = "https://partiful.com/e/vWDEqX9Zi3D86rL0jIfT";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type Tier = {
@@ -137,6 +138,7 @@ export default function TicketBuyingSection() {
 
   const canPurchase =
     ticketSalesEnabled && event !== null && tiers.length > 0;
+  const showUpcomingEvent = ticketSalesEnabled && event !== null;
 
   const handleCheckout = async () => {
     if (totalQty === 0 || isCheckingOut) return;
@@ -232,8 +234,8 @@ export default function TicketBuyingSection() {
           className="mb-6 flex justify-center"
         >
           <Image
-            src="/assets/Nfgsab.png"
-            alt="Help Save Super Action Burger event poster"
+            src="/assets/frasfestontour.jpg"
+            alt="FRAS FEST ON TOUR event poster"
             width={480}
             height={480}
             className="rounded-xl object-contain max-h-[420px] w-auto shadow-lg shadow-purple-950/60"
@@ -244,9 +246,9 @@ export default function TicketBuyingSection() {
         <div className="flex flex-wrap items-baseline gap-2 mb-6">
           <Ticket className="w-5 h-5 text-[#ffa5f9] flex-shrink-0 self-center" />
           <h2 className="text-white font-semibold text-lg">
-            {canPurchase ? "Buy tickets to our next show:" : "Thank you"}
+            {showUpcomingEvent ? "Get tickets to our next show:" : "Thank you"}
           </h2>
-          {event && canPurchase ? (
+          {event && showUpcomingEvent ? (
             <div className="flex flex-col gap-1">
               <span className="text-[#ffa5f9] font-semibold text-lg">{event.name}</span>
               <span className="text-amber-200/60 text-base">{event.venue}</span>
@@ -260,10 +262,46 @@ export default function TicketBuyingSection() {
           )}
         </div>
 
-        {!isLoadingData && !error && !canPurchase && (
+        {!isLoadingData && !error && !showUpcomingEvent && (
           <p className="text-amber-200/70 text-center text-base mb-6">
             We had such a blast with you at the last event!
           </p>
+        )}
+
+        {/* Partiful RSVP + door tickets when online Stripe tiers are not configured */}
+        {!isLoadingData && !error && showUpcomingEvent && !canPurchase && (
+          <div className="rounded-xl border border-amber-200/10 bg-purple-950/40 backdrop-blur-sm overflow-hidden divide-y divide-amber-200/10 mb-4">
+            <div className="flex items-center gap-4 px-5 py-4">
+              <div className="flex-1 min-w-0">
+                <span className="text-white font-medium">RSVP on Partiful</span>
+                <p className="text-amber-200/50 text-xs mt-0.5">
+                  Reserve your spot and see who&apos;s going
+                </p>
+              </div>
+              <Button
+                asChild
+                className="bg-[#ffa5f9] hover:bg-[#FFD5FC] text-black font-semibold shrink-0"
+              >
+                <a href={PARTIFUL_RSVP_URL} target="_blank" rel="noopener noreferrer">
+                  RSVP
+                </a>
+              </Button>
+            </div>
+            <div className="flex items-center gap-4 px-5 py-4">
+              <div className="flex-1 min-w-0">
+                <span className="text-white font-medium">In-person Tickets</span>
+                <p className="text-amber-200/50 text-xs mt-0.5">
+                  Purchase at the door on the day of the event
+                </p>
+              </div>
+              <span className="text-amber-200/80 font-medium tabular-nums w-14 text-right shrink-0">
+                $25
+              </span>
+              <span className="text-amber-200/40 text-xs shrink-0 w-[88px] text-center mr-3">
+                Door only
+              </span>
+            </div>
+          </div>
         )}
 
         {/* Error state */}
@@ -520,7 +558,7 @@ export default function TicketBuyingSection() {
                 </motion.div>
               );
             })}
-            {/* Static in-person tier
+            {/* Static in-person tier */}
             <motion.div
               initial={{ opacity: 0, x: -12 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -540,46 +578,51 @@ export default function TicketBuyingSection() {
               <span className="text-amber-200/40 text-xs shrink-0 w-[88px] text-center mr-3">
                 Door only
               </span>
-            </motion.div> */}
+            </motion.div>
           </div>
         )}
 
         {/* Footer / checkout (non-PWYW events) */}
         {!isLoadingData && !error && canPurchase && !isPwywOnly && (
-          <div className="mt-4 flex items-center justify-between gap-4">
-            <div className="text-amber-200/50 text-sm">
-              {totalQty > 0 ? (
-                <>
-                  <span className="text-white font-medium">{totalQty}</span>{" "}
-                  {totalQty === 1 ? "ticket" : "tickets"}
-                  {hasPayWhatYouWant ? (
-                    <> &mdash; <span className="text-[#ffa5f9] font-semibold">amount chosen at checkout</span></>
-                  ) : (
-                    <> &mdash; <span className="text-[#ffa5f9] font-semibold">${totalPrice}</span></>
-                  )}
-                </>
-              ) : (
-                "No tickets selected"
-              )}
-            </div>
+          <div className="mt-4 space-y-2">
+            <p className="text-[#ffa5f9]/90 text-sm font-medium">
+              No extra fees!! We cover all that shi
+            </p>
+            <div className="flex items-center justify-between gap-4">
+              <div className="text-amber-200/50 text-sm">
+                {totalQty > 0 ? (
+                  <>
+                    <span className="text-white font-medium">{totalQty}</span>{" "}
+                    {totalQty === 1 ? "ticket" : "tickets"}
+                    {hasPayWhatYouWant ? (
+                      <> &mdash; <span className="text-[#ffa5f9] font-semibold">amount chosen at checkout</span></>
+                    ) : (
+                      <> &mdash; <span className="text-[#ffa5f9] font-semibold">${totalPrice}</span></>
+                    )}
+                  </>
+                ) : (
+                  "No tickets selected"
+                )}
+              </div>
 
-            {checkoutError && (
-              <p className="text-red-400/80 text-xs">{checkoutError}</p>
-            )}
-            <Button
-              onClick={handleCheckout}
-              disabled={totalQty === 0 || isCheckingOut}
-              className="bg-[#ffa5f9] hover:bg-[#FFD5FC] text-black font-semibold px-8 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-            >
-              {isCheckingOut ? (
-                <span className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                  Loading…
-                </span>
-              ) : (
-                "Checkout"
+              {checkoutError && (
+                <p className="text-red-400/80 text-xs">{checkoutError}</p>
               )}
-            </Button>
+              <Button
+                onClick={handleCheckout}
+                disabled={totalQty === 0 || isCheckingOut}
+                className="bg-[#ffa5f9] hover:bg-[#FFD5FC] text-black font-semibold px-8 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                {isCheckingOut ? (
+                  <span className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                    Loading…
+                  </span>
+                ) : (
+                  "Checkout"
+                )}
+              </Button>
+            </div>
           </div>
         )}
       </motion.div>
