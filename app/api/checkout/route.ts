@@ -3,6 +3,7 @@ import Stripe from "stripe";
 
 import { DELUXE_PROMO_COOKIE, verifyDeluxePromoCookie } from "@/lib/promo-cookie";
 import { cartIsPromoEligibleOnly, getPromoEligiblePriceIds } from "@/lib/promo-eligibility";
+import { supabaseAdmin } from "@/lib/supabase";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -29,11 +30,47 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No items in cart" }, { status: 400 });
   }
 
-  // Validate quantities
   for (const item of lineItems) {
     if (!item.priceId || typeof item.quantity !== "number" || item.quantity < 1) {
       return NextResponse.json({ error: "Invalid line item" }, { status: 400 });
     }
+  }
+
+  const { data: activeEvent, error: eventError } = await supabaseAdmin
+    .from("events")
+    .select("id, ticket_tiers(id, stripe_price_id)")
+    .eq("is_active", true)
+    .maybeSingle();
+
+  if (eventError) {
+    console.error("[checkout] active event lookup:", eventError);
+    return NextResponse.json({ error: "Failed to load event" }, { status: 500 });
+  }
+
+  if (!activeEvent) {
+    return NextResponse.json({ error: "No active event" }, { status: 400 });
+  }
+
+  const tiers = (activeEvent.ticket_tiers ?? []) as {
+    id: string;
+    stripe_price_id: string | null;
+  }[];
+  const tierIdByPrice = new Map(
+    tiers
+      .filter((t) => t.stripe_price_id)
+      .map((t) => [t.stripe_price_id as string, t.id])
+  );
+
+  const resolvedTier: string[] = [];
+  for (const item of lineItems) {
+    const tierId = tierIdByPrice.get(item.priceId);
+    if (!tierId) {
+      return NextResponse.json(
+        { error: "One or more tickets are not available for this event" },
+        { status: 400 }
+      );
+    }
+    resolvedTier.push(tierId);
   }
 
   /** Stripe Coupon id OR Promotion Code API id (`promo_…`) — see STRIPE_PROMO_COUPON_ID. */
@@ -57,11 +94,13 @@ export async function POST(req: NextRequest) {
         price: item.priceId,
         quantity: item.quantity,
       })),
-      // Collect phone number so we can store it in orders after webhook
       phone_number_collection: { enabled: true },
-      // Let Stripe collect the email at checkout
       success_url: `${baseUrl}/?checkout=success`,
       cancel_url: `${baseUrl}/#tickets`,
+      metadata: {
+        event_id: activeEvent.id,
+        tier_ids: resolvedTier.join(","),
+      },
     };
 
     // Stripe: `discounts` and `allow_promotion_codes` are mutually exclusive.
