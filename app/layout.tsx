@@ -1,8 +1,8 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { Inter, Open_Sans } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
 import Script from 'next/script';
-
 const GOOGLE_ADS_GTAG_ID = 'AW-18119365314';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -45,6 +45,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} ${openSans.className}`}>
+        {children}
+        <Analytics />
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_GTAG_ID}`}
           strategy="afterInteractive"
