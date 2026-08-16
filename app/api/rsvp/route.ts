@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { parseComingToSee } from "@/lib/coming-to-see";
-import { persistComingToSee } from "@/lib/coming-to-see-order";
 import { sendTicketConfirmation } from "@/lib/email";
 import { formatEventDate } from "@/lib/ticket-sales";
 import { supabaseAdmin } from "@/lib/supabase";
@@ -90,8 +89,6 @@ export async function POST(req: NextRequest) {
     console.error("[rsvp] insert order error:", orderError);
     return NextResponse.json({ error: "Failed to save RSVP" }, { status: 500 });
   }
-
-  await persistComingToSee(order.id, comingToSee.label);
 
   const { error: itemError } = await supabaseAdmin.from("order_items").insert({
     order_id: order.id,
