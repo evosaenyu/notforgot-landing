@@ -667,7 +667,7 @@ export default function TicketBuyingSection() {
               <p className="text-[#ffa5f9]/90 text-sm font-medium">
                 No extra fees!! We cover all that shi
               </p>
-              <p className="text-amber-200/55 text-sm">
+              <p className="text-[#ffa5f9]/90 text-sm">
                 $5 off with coupon code!
               </p>
             </div>
