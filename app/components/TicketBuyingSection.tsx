@@ -23,6 +23,12 @@ const PARTIFUL_RSVP_URL = "https://partiful.com/e/vWDEqX9Zi3D86rL0jIfT";
 /** Customer-facing Stripe promotion code — set NEXT_PUBLIC_DELUXE_PROMO_CODE in env. */
 const CHECKOUT_PROMO_CODE =
   (process.env.NEXT_PUBLIC_DELUXE_PROMO_CODE ?? "FRASFRIEND").trim() || "FRASFRIEND";
+/** Flat $5 off the order at Stripe checkout (same coupon the modal shows). */
+const CHECKOUT_COUPON_DOLLARS = 5;
+
+function formatUsd(amount: number) {
+  return Number.isInteger(amount) ? `$${amount}` : `$${amount.toFixed(2)}`;
+}
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type Tier = {
@@ -152,6 +158,7 @@ export default function TicketBuyingSection() {
   const totalQty = Object.values(cart).reduce((a, b) => a + b, 0);
   const hasPayWhatYouWant = tiers.some((t) => t.isPayWhatYouWant && (cart[t.id] ?? 0) > 0);
   const totalPrice = tiers.reduce((sum, t) => sum + (cart[t.id] ?? 0) * t.price, 0);
+  const checkoutPrice = Math.max(0, totalPrice - CHECKOUT_COUPON_DOLLARS);
 
   const canPurchase =
     ticketSalesEnabled && event !== null && tiers.length > 0;
@@ -598,16 +605,23 @@ export default function TicketBuyingSection() {
                     <p className="text-amber-200/50 text-xs mt-0.5">{tier.description}</p>
                   </div>
 
-                  {/* Price — from Stripe */}
-                  <span className="text-amber-200/80 font-medium tabular-nums w-14 text-right shrink-0">
-                    {tier.isPayWhatYouWant ? (
-                      tier.payWhatYouWantMinimum != null
+                  {/* Price — from Stripe; standard tiers preview $5 off at checkout */}
+                  {tier.isPayWhatYouWant ? (
+                    <span className="text-amber-200/80 font-medium tabular-nums w-14 text-right shrink-0">
+                      {tier.payWhatYouWantMinimum != null
                         ? `$${tier.payWhatYouWantMinimum}+`
-                        : "You choose"
-                    ) : (
-                      `$${tier.price}`
-                    )}
-                  </span>
+                        : "You choose"}
+                    </span>
+                  ) : (
+                    <span className="flex flex-col items-end shrink-0 min-w-[3.5rem] tabular-nums leading-tight">
+                      <span className="text-amber-200/40 text-xs line-through">
+                        {formatUsd(tier.price)}
+                      </span>
+                      <span className="text-[#ffa5f9] font-medium">
+                        {formatUsd(Math.max(0, tier.price - CHECKOUT_COUPON_DOLLARS))}
+                      </span>
+                    </span>
+                  )}
 
                   {/* Qty controls */}
                   <div className="flex items-center gap-2 shrink-0">
@@ -666,6 +680,9 @@ export default function TicketBuyingSection() {
             <p className="text-[#ffa5f9]/90 text-sm font-medium">
               No extra fees!! We cover all that shi
             </p>
+            <p className="text-amber-200/55 text-sm -mt-1">
+              You&apos;ll pay $5 less at checkout
+            </p>
             <div className="rounded-xl border border-amber-200/10 bg-purple-950/40 backdrop-blur-sm p-5">
               <ComingToSeePicker
                 value={comingToSee}
@@ -682,7 +699,15 @@ export default function TicketBuyingSection() {
                     {hasPayWhatYouWant ? (
                       <> &mdash; <span className="text-[#ffa5f9] font-semibold">amount chosen at checkout</span></>
                     ) : (
-                      <> &mdash; <span className="text-[#ffa5f9] font-semibold">${totalPrice}</span></>
+                      <>
+                        {" "}&mdash;{" "}
+                        <span className="line-through text-amber-200/35 font-medium">
+                          {formatUsd(totalPrice)}
+                        </span>{" "}
+                        <span className="text-[#ffa5f9] font-semibold">
+                          {formatUsd(checkoutPrice)}
+                        </span>
+                      </>
                     )}
                   </>
                 ) : (
