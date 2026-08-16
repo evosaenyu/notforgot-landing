@@ -1,12 +1,12 @@
 "use client";
 
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { COMING_TO_SEE_ARTISTS, parseComingToSee, type ComingToSeeId } from "@/lib/coming-to-see";
+import { Checkbox } from "@/components/ui/checkbox";
+import { COMING_TO_SEE_ARTISTS, type ComingToSeeId } from "@/lib/coming-to-see";
 import { cn } from "@/lib/utils";
 
 type ComingToSeePickerProps = {
-  value: ComingToSeeId | null;
-  onChange: (value: ComingToSeeId) => void;
+  value: ComingToSeeId[];
+  onChange: (value: ComingToSeeId[]) => void;
   invalid?: boolean;
 };
 
@@ -15,6 +15,15 @@ export default function ComingToSeePicker({
   onChange,
   invalid = false,
 }: ComingToSeePickerProps) {
+  const toggle = (id: ComingToSeeId, checked: boolean) => {
+    if (checked) {
+      if (value.includes(id)) return;
+      onChange([...value, id]);
+      return;
+    }
+    onChange(value.filter((current) => current !== id));
+  };
+
   return (
     <fieldset className="space-y-3">
       <legend className="text-white font-medium">
@@ -24,20 +33,16 @@ export default function ComingToSeePicker({
         </span>
       </legend>
       <p className="text-amber-200/50 text-xs -mt-1">
-        August 30 has a stacked lineup — pick the act you&apos;re most excited for.
+        August 30 has a stacked lineup — pick everyone you&apos;re excited for.
       </p>
-      <RadioGroup
-        value={value ?? ""}
-        onValueChange={(next) => {
-          const artist = parseComingToSee(next);
-          if (artist) onChange(artist.id);
-        }}
+      <div
         className="grid grid-cols-1 sm:grid-cols-2 gap-2"
+        role="group"
         aria-required="true"
         aria-invalid={invalid}
       >
         {COMING_TO_SEE_ARTISTS.map((artist) => {
-          const selected = value === artist.id;
+          const selected = value.includes(artist.id);
           return (
             <label
               key={artist.id}
@@ -50,16 +55,17 @@ export default function ComingToSeePicker({
                 invalid && !selected && "border-red-400/40"
               )}
             >
-              <RadioGroupItem
+              <Checkbox
                 id={`coming-to-see-${artist.id}`}
-                value={artist.id}
-                className="border-amber-200/50 text-[#ffa5f9] data-[state=checked]:border-[#ffa5f9]"
+                checked={selected}
+                onCheckedChange={(checked) => toggle(artist.id, checked === true)}
+                className="border-amber-200/50 data-[state=checked]:bg-[#ffa5f9] data-[state=checked]:text-black data-[state=checked]:border-[#ffa5f9]"
               />
               <span className="text-sm text-white">{artist.label}</span>
             </label>
           );
         })}
-      </RadioGroup>
+      </div>
     </fieldset>
   );
 }
