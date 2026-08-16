@@ -180,25 +180,27 @@ export default function Home() {
 
         </div>
         {ticketSalesEnabled && (
-          <motion.button
-            type="button"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: scrollY > 40 ? 0 : 1, y: 0 }}
-            transition={{ duration: 0.7, delay: scrollY > 0 ? 0 : 1.4 }}
-            className="absolute bottom-7 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-amber-200/80 hover:text-[#ffa5f9] transition-colors"
-            onClick={scrollToTickets}
-            aria-label="Scroll down for tickets"
-          >
-            <span className="text-[11px] uppercase tracking-[0.22em]">
-              Scroll for tickets
-            </span>
-            <motion.div
-              animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+          <div className="absolute bottom-7 inset-x-0 flex justify-center">
+            <motion.button
+              type="button"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: scrollY > 40 ? 0 : 1, y: 0 }}
+              transition={{ duration: 0.7, delay: scrollY > 0 ? 0 : 1.4 }}
+              className="flex flex-col items-center text-center gap-1.5 text-amber-200/80 hover:text-[#ffa5f9] transition-colors"
+              onClick={scrollToTickets}
+              aria-label="Scroll down for tickets"
             >
-              <ChevronDown className="w-6 h-6" />
-            </motion.div>
-          </motion.button>
+              <span className="text-[11px] uppercase tracking-[0.22em]">
+                Scroll for tickets
+              </span>
+              <motion.div
+                animate={{ y: [0, 8, 0] }}
+                transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <ChevronDown className="w-6 h-6" />
+              </motion.div>
+            </motion.button>
+          </div>
         )}
       </section>
 
