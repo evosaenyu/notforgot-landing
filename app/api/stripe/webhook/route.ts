@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { persistComingToSee } from "@/lib/coming-to-see-order";
 import { supabaseAdmin } from "@/lib/supabase";
 import { sendTicketConfirmation, type TicketLineItem } from "@/lib/email";
 
@@ -102,6 +103,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const customerName = full.customer_details?.name ?? "Guest";
   const customerPhone = full.customer_details?.phone ?? null;
   const amountTotal = full.amount_total ?? 0;
+  const comingToSee = full.metadata?.coming_to_see?.trim() || null;
   const activeEventId = await resolveActiveEventId(full);
 
   const { data: existingOrder } = await supabaseAdmin
@@ -142,6 +144,10 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     } else {
       orderId = order.id;
     }
+  }
+
+  if (orderId) {
+    await persistComingToSee(orderId, comingToSee);
   }
 
   const { data: existingItems } = await supabaseAdmin

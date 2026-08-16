@@ -2,6 +2,8 @@ import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
+import { parseComingToSee } from "@/lib/coming-to-see";
+import { persistComingToSee } from "@/lib/coming-to-see-order";
 import { sendTicketConfirmation } from "@/lib/email";
 import { formatEventDate } from "@/lib/ticket-sales";
 import { supabaseAdmin } from "@/lib/supabase";
@@ -13,6 +15,7 @@ const bodySchema = z.object({
   email: z.string().email().max(320),
   phone: z.string().min(7, "Phone is required").max(30),
   tierKey: z.string().min(1).optional(),
+  comingToSee: z.string().min(1, "Pick who you're coming to see"),
 });
 
 export async function POST(req: NextRequest) {
@@ -21,7 +24,10 @@ export async function POST(req: NextRequest) {
     const json = await req.json();
     const result = bodySchema.safeParse(json);
     if (!result.success) {
-      return NextResponse.json({ error: "Enter a valid name, email, and phone." }, { status: 400 });
+      return NextResponse.json(
+        { error: "Enter a valid name, email, phone, and who you're coming to see." },
+        { status: 400 }
+      );
     }
     body = result.data;
   } catch {
@@ -59,6 +65,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "This tier is sold out" }, { status: 409 });
   }
 
+  const comingToSee = parseComingToSee(body.comingToSee);
+  if (!comingToSee) {
+    return NextResponse.json({ error: "Pick who you're coming to see" }, { status: 400 });
+  }
+
   const customerName = body.name.trim();
   const customerEmail = body.email.trim().toLowerCase();
   const customerPhone = body.phone.trim();
@@ -79,6 +90,8 @@ export async function POST(req: NextRequest) {
     console.error("[rsvp] insert order error:", orderError);
     return NextResponse.json({ error: "Failed to save RSVP" }, { status: 500 });
   }
+
+  await persistComingToSee(order.id, comingToSee.label);
 
   const { error: itemError } = await supabaseAdmin.from("order_items").insert({
     order_id: order.id,
