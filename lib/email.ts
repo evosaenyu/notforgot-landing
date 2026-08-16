@@ -249,3 +249,36 @@ export async function sendTicketConfirmation(data: TicketConfirmationData) {
 
   await sgMail.send(msg);
 }
+
+const TEAM_INBOX = "nfgnycofficial@gmail.com";
+
+export async function sendComingToSeePurchaseAlert(opts: {
+  comingToSee: string;
+  customerName: string;
+  customerEmail: string | null;
+  ticketCount: number;
+  totalDollars: number;
+  eventName: string;
+}): Promise<void> {
+  if (!process.env.SENDGRID_API_KEY || !process.env.SENDGRID_FROM_EMAIL) return;
+
+  const artist = opts.comingToSee.trim();
+  const buyer = opts.customerName.trim() || "Guest";
+  const email = opts.customerEmail?.trim() || "no email";
+  const tickets = opts.ticketCount === 1 ? "1 ticket" : `${opts.ticketCount} tickets`;
+
+  await sgMail.send({
+    to: TEAM_INBOX,
+    from: { email: FROM, name: "N.F.G. Collective" },
+    subject: `Coming to see: ${artist}`,
+    text: [
+      `Coming to see: ${artist}`,
+      ``,
+      `Buyer: ${buyer}`,
+      `Email: ${email}`,
+      `Tickets: ${tickets}`,
+      `Paid: $${opts.totalDollars}`,
+      `Event: ${opts.eventName}`,
+    ].join("\n"),
+  });
+}

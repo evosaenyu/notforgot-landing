@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { supabaseAdmin } from "@/lib/supabase";
-import { sendTicketConfirmation, type TicketLineItem } from "@/lib/email";
+import { sendComingToSeePurchaseAlert, sendTicketConfirmation, type TicketLineItem } from "@/lib/email";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -102,6 +102,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const customerName = full.customer_details?.name ?? "Guest";
   const customerPhone = full.customer_details?.phone ?? null;
   const amountTotal = full.amount_total ?? 0;
+  const comingToSee = full.metadata?.coming_to_see?.trim() || null;
   const activeEventId = await resolveActiveEventId(full);
 
   const { data: existingOrder } = await supabaseAdmin
@@ -200,16 +201,35 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     return;
   }
 
-  if (!customerEmail) {
-    console.warn("[webhook] no customer email — skipping confirmation send");
-    return;
-  }
-
   const { data: eventRow } = await supabaseAdmin
     .from("events")
     .select("name, date, venue")
     .eq("is_active", true)
     .maybeSingle();
+
+  const eventName = eventRow?.name ?? "NOTFORGOT";
+  const ticketCount = lineItems.reduce((sum, item) => sum + (item.quantity ?? 0), 0);
+  const totalDollars = Math.round(amountTotal / 100);
+
+  if (comingToSee) {
+    try {
+      await sendComingToSeePurchaseAlert({
+        comingToSee,
+        customerName,
+        customerEmail,
+        ticketCount,
+        totalDollars,
+        eventName,
+      });
+    } catch (err) {
+      console.error("[webhook] coming-to-see alert:", err);
+    }
+  }
+
+  if (!customerEmail) {
+    console.warn("[webhook] no customer email — skipping confirmation send");
+    return;
+  }
 
   const emailLineItems: TicketLineItem[] = lineItems.map((item) => {
     const product = item.price?.product;
@@ -225,7 +245,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   await sendTicketConfirmation({
     customerName,
     customerEmail,
-    eventName: eventRow?.name ?? "NOTFORGOT",
+    eventName,
     eventDate: eventRow
       ? new Date(eventRow.date).toLocaleDateString("en-US", {
           weekday: "long",
@@ -236,6 +256,6 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       : "",
     eventVenue: eventRow?.venue ?? "TBD",
     lineItems: emailLineItems,
-    totalDollars: Math.round(amountTotal / 100),
+    totalDollars,
   });
 }

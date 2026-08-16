@@ -77,6 +77,10 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="min-h-screen flex items-center justify-center relative p-4">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-purple-950/70 to-transparent"
+        />
         <div className="max-w-4xl w-[70w] space-y-8 text-center relative">
           <div className="relative h-[200px] flex items-center justify-center">
             <AnimatePresence>
@@ -133,7 +137,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 100 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 2, duration: 2, ease: "easeInOut" }}
-              className="max-w-md mx-auto"
+              className="max-w-md mx-auto space-y-3"
             >
               <Button
                 type="button"
@@ -142,6 +146,9 @@ export default function Home() {
               >
                 Get tickets
               </Button>
+              <p className="text-amber-200/70 text-sm tracking-wide">
+                August 30 · multiple acts · tickets are just below
+              </p>
             </motion.div>
           )}
 
@@ -173,20 +180,25 @@ export default function Home() {
 
         </div>
         {ticketSalesEnabled && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: scrollY > 0 ? 0 : 1 }}
-            transition={{ duration: 3, delay: 5 }}
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer"
+          <motion.button
+            type="button"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: scrollY > 40 ? 0 : 1, y: 0 }}
+            transition={{ duration: 0.7, delay: scrollY > 0 ? 0 : 1.4 }}
+            className="absolute bottom-7 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-amber-200/80 hover:text-[#ffa5f9] transition-colors"
             onClick={scrollToTickets}
+            aria-label="Scroll down for tickets"
           >
+            <span className="text-[11px] uppercase tracking-[0.22em]">
+              Scroll for tickets
+            </span>
             <motion.div
-              animate={{ y: [0, 10, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
             >
-              <ChevronDown className="w-6 h-6 text-amber-200/70" />
+              <ChevronDown className="w-6 h-6" />
             </motion.div>
-          </motion.div>
+          </motion.button>
         )}
       </section>
 
