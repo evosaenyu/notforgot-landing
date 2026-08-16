@@ -53,7 +53,7 @@ async function submitFreeRsvp(payload: {
   email: string;
   phone: string;
   tierKey: string;
-  comingToSee: ComingToSeeId;
+  comingToSee: ComingToSeeId[];
 }) {
   const res = await fetch("/api/rsvp", {
     method: "POST",
@@ -67,7 +67,7 @@ async function submitFreeRsvp(payload: {
 }
 
 // ─── Stripe checkout ─────────────────────────────────────────────────────────
-async function startCheckout(cart: Cart, tiers: Tier[], comingToSee: ComingToSeeId) {
+async function startCheckout(cart: Cart, tiers: Tier[], comingToSee: ComingToSeeId[]) {
   const lineItems = tiers.flatMap((tier) => {
     const qty = cart[tier.id] ?? 0;
     if (qty === 0) return [];
@@ -108,7 +108,7 @@ export default function TicketBuyingSection() {
   const [rsvpPhone, setRsvpPhone] = useState("");
   const [isSubmittingRsvp, setIsSubmittingRsvp] = useState(false);
   const [rsvpError, setRsvpError] = useState<string | null>(null);
-  const [comingToSee, setComingToSee] = useState<ComingToSeeId | null>(null);
+  const [comingToSee, setComingToSee] = useState<ComingToSeeId[]>([]);
   const [comingToSeeError, setComingToSeeError] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
 
@@ -157,7 +157,9 @@ export default function TicketBuyingSection() {
     ticketSalesEnabled && event !== null && tiers.length > 0;
   const showUpcomingEvent = ticketSalesEnabled && event !== null;
 
-  const selectComingToSee = (next: ComingToSeeId) => {
+  const hasComingToSee = comingToSee.length > 0;
+
+  const selectComingToSee = (next: ComingToSeeId[]) => {
     setComingToSee(next);
     setComingToSeeError(false);
     if (checkoutError === "Pick who you're coming to see") {
@@ -169,7 +171,7 @@ export default function TicketBuyingSection() {
   };
 
   const proceedToCheckout = async () => {
-    if (totalQty === 0 || isCheckingOut || !comingToSee) return;
+    if (totalQty === 0 || isCheckingOut || !hasComingToSee) return;
     setIsCheckingOut(true);
     setCheckoutError(null);
     try {
@@ -183,7 +185,7 @@ export default function TicketBuyingSection() {
   /** Standard tiers: show $5 coupon modal first. PWYW skips (Stripe can't apply promos to custom amounts). */
   const handleCheckout = () => {
     if (totalQty === 0 || isCheckingOut) return;
-    if (!comingToSee) {
+    if (!hasComingToSee) {
       setComingToSeeError(true);
       setCheckoutError("Pick who you're coming to see");
       return;
@@ -237,7 +239,7 @@ export default function TicketBuyingSection() {
   const handleFreeRsvp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!pwywTier || isSubmittingRsvp) return;
-    if (!comingToSee) {
+    if (!hasComingToSee) {
       setComingToSeeError(true);
       setRsvpError("Pick who you're coming to see");
       return;
@@ -496,7 +498,7 @@ export default function TicketBuyingSection() {
             {rsvpError && <p className="text-red-400/80 text-xs">{rsvpError}</p>}
             <Button
               type="submit"
-              disabled={isSubmittingRsvp || !comingToSee}
+              disabled={isSubmittingRsvp || !hasComingToSee}
               className="w-full bg-[#ffa5f9] hover:bg-[#FFD5FC] text-black font-semibold disabled:opacity-40"
             >
               {isSubmittingRsvp ? "Submitting…" : "Confirm free RSVP"}
@@ -545,7 +547,7 @@ export default function TicketBuyingSection() {
               )}
               <Button
                 onClick={handleCheckout}
-                disabled={isCheckingOut || pwywTier.remaining === 0 || !comingToSee}
+                disabled={isCheckingOut || pwywTier.remaining === 0 || !hasComingToSee}
                 className="bg-[#ffa5f9] hover:bg-[#FFD5FC] text-black font-semibold px-8 disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0"
               >
                 {isCheckingOut ? (
@@ -693,8 +695,8 @@ export default function TicketBuyingSection() {
               )}
               <Button
                 onClick={handleCheckout}
-                disabled={totalQty === 0 || isCheckingOut || !comingToSee}
-                title={!comingToSee ? "Pick who you're coming to see" : undefined}
+                disabled={totalQty === 0 || isCheckingOut || !hasComingToSee}
+                title={!hasComingToSee ? "Pick who you're coming to see" : undefined}
                 className="bg-[#ffa5f9] hover:bg-[#FFD5FC] text-black font-semibold px-8 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
               >
                 {isCheckingOut ? (
@@ -707,7 +709,7 @@ export default function TicketBuyingSection() {
                 )}
               </Button>
             </div>
-            {totalQty > 0 && !comingToSee && (
+            {totalQty > 0 && !hasComingToSee && (
               <p className="text-amber-200/45 text-xs">
                 Pick who you&apos;re coming to see to unlock checkout
               </p>
