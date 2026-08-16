@@ -1,7 +1,7 @@
 "use client";
 
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { COMING_TO_SEE_ARTISTS, type ComingToSeeId } from "@/lib/coming-to-see";
+import { COMING_TO_SEE_ARTISTS, parseComingToSee, type ComingToSeeId } from "@/lib/coming-to-see";
 import { cn } from "@/lib/utils";
 
 type ComingToSeePickerProps = {
@@ -28,7 +28,10 @@ export default function ComingToSeePicker({
       </p>
       <RadioGroup
         value={value ?? ""}
-        onValueChange={(next) => onChange(next as ComingToSeeId)}
+        onValueChange={(next) => {
+          const artist = parseComingToSee(next);
+          if (artist) onChange(artist.id);
+        }}
         className="grid grid-cols-1 sm:grid-cols-2 gap-2"
         aria-required="true"
         aria-invalid={invalid}
