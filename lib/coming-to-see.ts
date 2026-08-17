@@ -6,7 +6,7 @@ export const COMING_TO_SEE_ARTISTS = [
   { id: "tevin-williams", label: "Tevin Williams" },
   { id: "lj-the-vagabond", label: "LJ The Vagabond" },
   { id: "nfg-collective", label: "N.F.G. Collective" },
-  { id: "lexa", label: "Lexa" },
+  { id: "lexa", label: "Lexaverse feat Schrodinger's Cats" },
 ] as const;
 
 export type ComingToSeeId = (typeof COMING_TO_SEE_ARTISTS)[number]["id"];
