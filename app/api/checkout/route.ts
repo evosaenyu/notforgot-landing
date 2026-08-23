@@ -98,6 +98,13 @@ export async function POST(req: NextRequest) {
   );
   const hasCustomUnitAmount = stripePrices.some((p) => p.custom_unit_amount != null);
 
+  const metadata = {
+    event_id: activeEvent.id,
+    tier_ids: resolvedTier.join(","),
+    coming_to_see: formatComingToSeeLabels(comingToSee),
+    coming_to_see_id: comingToSee.map((artist) => artist.id).join(","),
+  };
+
   try {
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       mode: "payment",
@@ -108,12 +115,9 @@ export async function POST(req: NextRequest) {
       phone_number_collection: { enabled: true },
       success_url: `${baseUrl}/?checkout=success`,
       cancel_url: `${baseUrl}/#tickets`,
-      metadata: {
-        event_id: activeEvent.id,
-        tier_ids: resolvedTier.join(","),
-        coming_to_see: formatComingToSeeLabels(comingToSee),
-        coming_to_see_id: comingToSee.map((artist) => artist.id).join(","),
-      },
+      metadata,
+      // Dashboard → Payments shows PaymentIntent metadata, not session metadata.
+      payment_intent_data: { metadata },
     };
 
     // Stripe: `discounts` and `allow_promotion_codes` are mutually exclusive.
@@ -129,6 +133,7 @@ export async function POST(req: NextRequest) {
     }
 
     const session = await stripe.checkout.sessions.create(sessionParams);
+    console.log("[checkout] session metadata", session.id, session.metadata);
 
     return NextResponse.json({ url: session.url });
   } catch (err) {

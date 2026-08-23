@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "db:check-promo-signups": "node scripts/check-promo-signups-table.mjs"
+    "db:check-promo-signups": "node scripts/check-promo-signups-table.mjs",
+    "stripe:inspect-metadata": "node scripts/inspect-checkout-metadata.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
