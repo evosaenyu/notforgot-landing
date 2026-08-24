@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { supabaseAdmin } from "@/lib/supabase";
 import { sendComingToSeePurchaseAlert, sendTicketConfirmation, type TicketLineItem } from "@/lib/email";
+import { formatEventDate } from "@/lib/ticket-sales";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -246,14 +247,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     customerName,
     customerEmail,
     eventName,
-    eventDate: eventRow
-      ? new Date(eventRow.date).toLocaleDateString("en-US", {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })
-      : "",
+    eventDate: eventRow ? formatEventDate(eventRow.date) : "",
     eventVenue: eventRow?.venue ?? "TBD",
     lineItems: emailLineItems,
     totalDollars,

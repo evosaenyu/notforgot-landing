@@ -6,14 +6,18 @@ export function isTicketSalesEnabled(): boolean {
   return raw === "true" || raw === "1" || raw === "yes";
 }
 
+const EVENT_TIME_ZONE = "America/New_York";
+
 export function formatEventDate(isoDate: string): string {
-  return new Date(isoDate).toLocaleDateString("en-US", {
+  return new Date(isoDate).toLocaleString("en-US", {
     weekday: "long",
     year: "numeric",
     month: "long",
     day: "numeric",
-    hour: "2-digit",
+    hour: "numeric",
     minute: "2-digit",
     hour12: true,
+    timeZone: EVENT_TIME_ZONE,
+    timeZoneName: "short",
   });
 }

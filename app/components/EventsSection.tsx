@@ -24,7 +24,7 @@ interface EventItem {
 const events: EventItem[] = [
   {
     name: "FRAS FEST ON TOUR",
-    date: "August 30, 2026 - Sunday (5:00pm show)",
+    date: "August 30, 2026 - Sunday (6pm show)",
     locationName: "Sanger Hall",
     address: "48-20 Skillman Ave, Sunnyside, NY 11104",
     image: frasfestontour,
