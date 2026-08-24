@@ -143,7 +143,7 @@ export default function Home() {
                 Get tickets
               </Button>
               <p className="text-amber-200/70 text-sm tracking-wide">
-                August 30 · multiple acts · tickets are just below
+                August 30 · starts at 6pm · tickets are just below
               </p>
             </motion.div>
           )}
