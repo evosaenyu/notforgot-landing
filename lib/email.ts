@@ -1,8 +1,34 @@
-import sgMail from "@sendgrid/mail";
+import { Resend } from "resend";
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
+const FROM_NAME = "N.F.G. Collective";
 
-const FROM = process.env.SENDGRID_FROM_EMAIL!;
+function emailConfig() {
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+  const fromEmail = process.env.RESEND_FROM_EMAIL?.trim();
+  if (!apiKey || !fromEmail) return null;
+  return { resend: new Resend(apiKey), fromEmail };
+}
+
+async function sendResendEmail(opts: {
+  to: string;
+  subject: string;
+  text: string;
+  html?: string;
+  fromName?: string;
+}): Promise<boolean> {
+  const cfg = emailConfig();
+  if (!cfg) return false;
+
+  const { error } = await cfg.resend.emails.send({
+    from: `${opts.fromName ?? FROM_NAME} <${cfg.fromEmail}>`,
+    to: opts.to,
+    subject: opts.subject,
+    text: opts.text,
+    html: opts.html,
+  });
+  if (error) throw new Error(error.message);
+  return true;
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 export type TicketLineItem = {
@@ -176,32 +202,33 @@ export async function sendDeluxeCouponSignup(
   /** Code or ID you show subscribers (may match Stripe promo code wording). */
   promoCodeDisplay: string
 ): Promise<void> {
-  if (!process.env.SENDGRID_API_KEY || !process.env.SENDGRID_FROM_EMAIL) return;
-
   const firstName = escapeHtmlText(customerName.trim().split(/\s+/)[0] ?? customerName.trim());
   const safeCodeDisplay = promoCodeDisplay ? escapeHtmlText(promoCodeDisplay) : "";
   const hasCode = Boolean(promoCodeDisplay.trim());
 
-  const msg = {
-    to: { email: customerEmail, name: customerName },
-    from: { email: FROM, name: "NFG Collective" },
-    subject: hasCode ? "Welcome to the Collective — your $5 off code" : "Welcome to the Collective",
-    text: [
-      `Hi ${customerName.trim().split(/\s+/)[0] ?? customerName.trim()},`,
-      ``,
-      `Welcome to the Collective! We'll let you know about future events, discount codes, and giveaways through here.`,
-      ``,
-      hasCode
-        ? `Your $5 off Early Bird or General Admission code: ${promoCodeDisplay.trim()}`
-        : null,
-      hasCode
-        ? `Enter it at checkout when you buy Early Bird or General Admission tickets.`
-        : null,
-      hasCode ? `` : null,
-      `— N.F.G. Collective`,
-    ]
-      .filter((line) => line !== null)
-      .join("\n"),
+  const subject = hasCode ? "Welcome to the Collective — your $5 off code" : "Welcome to the Collective";
+  const text = [
+    `Hi ${customerName.trim().split(/\s+/)[0] ?? customerName.trim()},`,
+    ``,
+    `Welcome to the Collective! We'll let you know about future events, discount codes, and giveaways through here.`,
+    ``,
+    hasCode
+      ? `Your $5 off Early Bird or General Admission code: ${promoCodeDisplay.trim()}`
+      : null,
+    hasCode
+      ? `Enter it at checkout when you buy Early Bird or General Admission tickets.`
+      : null,
+    hasCode ? `` : null,
+    `— N.F.G. Collective`,
+  ]
+    .filter((line) => line !== null)
+    .join("\n");
+
+  await sendResendEmail({
+    to: customerEmail,
+    fromName: "NFG Collective",
+    subject,
+    text,
     html: `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /></head>
@@ -233,21 +260,17 @@ export async function sendDeluxeCouponSignup(
   </table>
 </body>
 </html>`,
-  };
-
-  await sgMail.send(msg);
+  });
 }
 
 export async function sendTicketConfirmation(data: TicketConfirmationData) {
-  const msg = {
-    to: { email: data.customerEmail, name: data.customerName },
-    from: { email: FROM, name: "N.F.G. Collective" },
+  const sent = await sendResendEmail({
+    to: data.customerEmail,
     subject: `🎟 You're confirmed — ${data.eventName}`,
     html: buildTicketConfirmationHtml(data),
     text: buildTicketConfirmationText(data),
-  };
-
-  await sgMail.send(msg);
+  });
+  if (!sent) throw new Error("Resend is not configured");
 }
 
 const TEAM_INBOX = "nfgnycofficial@gmail.com";
@@ -260,16 +283,13 @@ export async function sendComingToSeePurchaseAlert(opts: {
   totalDollars: number;
   eventName: string;
 }): Promise<void> {
-  if (!process.env.SENDGRID_API_KEY || !process.env.SENDGRID_FROM_EMAIL) return;
-
   const artist = opts.comingToSee.trim();
   const buyer = opts.customerName.trim() || "Guest";
   const email = opts.customerEmail?.trim() || "no email";
   const tickets = opts.ticketCount === 1 ? "1 ticket" : `${opts.ticketCount} tickets`;
 
-  await sgMail.send({
+  await sendResendEmail({
     to: TEAM_INBOX,
-    from: { email: FROM, name: "N.F.G. Collective" },
     subject: `Coming to see: ${artist}`,
     text: [
       `Coming to see: ${artist}`,
