@@ -2,17 +2,10 @@
 
 import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
-import { Minus, Plus, Ticket, ArrowLeft, Heart, TicketCheck, Copy, Check } from "lucide-react";
+import { Minus, Plus, Ticket, ArrowLeft, Heart, TicketCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { motion } from "framer-motion";
 import { isTicketSalesEnabled } from "@/lib/ticket-sales";
 import { type ComingToSeeId } from "@/lib/coming-to-see";
@@ -20,9 +13,6 @@ import ComingToSeePicker from "./ComingToSeePicker";
 
 const ticketSalesEnabled = isTicketSalesEnabled();
 const PARTIFUL_RSVP_URL = "https://partiful.com/e/vWDEqX9Zi3D86rL0jIfT";
-/** Customer-facing Stripe promotion code — set NEXT_PUBLIC_DELUXE_PROMO_CODE in env. */
-const CHECKOUT_PROMO_CODE =
-  (process.env.NEXT_PUBLIC_DELUXE_PROMO_CODE ?? "FRASFRIEND").trim() || "FRASFRIEND";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type Tier = {
@@ -99,8 +89,6 @@ export default function TicketBuyingSection() {
   const [error, setError] = useState<string | null>(null);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
-  const [showPromoModal, setShowPromoModal] = useState(false);
-  const [promoCopied, setPromoCopied] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [attendanceChoice, setAttendanceChoice] = useState<AttendanceChoice | null>(null);
   const [rsvpName, setRsvpName] = useState("");
@@ -182,7 +170,6 @@ export default function TicketBuyingSection() {
     }
   };
 
-  /** Standard tiers: show $5 coupon modal first. PWYW skips (Stripe can't apply promos to custom amounts). */
   const handleCheckout = () => {
     if (totalQty === 0 || isCheckingOut) return;
     if (!hasComingToSee) {
@@ -190,25 +177,6 @@ export default function TicketBuyingSection() {
       setCheckoutError("Pick who you're coming to see");
       return;
     }
-    if (hasPayWhatYouWant) {
-      void proceedToCheckout();
-      return;
-    }
-    setPromoCopied(false);
-    setShowPromoModal(true);
-  };
-
-  const handleCopyPromo = async () => {
-    try {
-      await navigator.clipboard.writeText(CHECKOUT_PROMO_CODE);
-      setPromoCopied(true);
-    } catch {
-      setPromoCopied(false);
-    }
-  };
-
-  const handleContinueFromPromo = () => {
-    setShowPromoModal(false);
     void proceedToCheckout();
   };
 
@@ -716,57 +684,6 @@ export default function TicketBuyingSection() {
             )}
           </div>
         )}
-
-        <Dialog open={showPromoModal} onOpenChange={setShowPromoModal}>
-          <DialogContent className="max-w-[420px] border border-amber-200/15 bg-purple-950/95 text-amber-100 shadow-xl shadow-purple-950/70 sm:rounded-xl">
-            <DialogHeader className="space-y-2 text-left">
-              <DialogTitle className="text-xl text-white tracking-tight">
-                $5 off your tickets
-              </DialogTitle>
-              <DialogDescription className="text-amber-200/70 leading-relaxed">
-                Copy this code and paste it at Stripe checkout to save $5.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 pt-2">
-              <div className="rounded-lg border border-[#ffa5f9]/30 bg-purple-950/60 px-4 py-3 flex items-center justify-between gap-3">
-                <div className="min-w-0 text-center flex-1">
-                  <p className="text-[11px] uppercase tracking-wider text-[#ffa5f9]/80 mb-1">
-                    Your code
-                  </p>
-                  <p className="text-lg font-semibold text-[#ffa5f9] tracking-wide">
-                    {CHECKOUT_PROMO_CODE}
-                  </p>
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => void handleCopyPromo()}
-                  className="shrink-0 border-[#ffa5f9]/40 bg-transparent text-[#ffa5f9] hover:bg-[#ffa5f9]/10 hover:text-[#FFD5FC]"
-                >
-                  {promoCopied ? (
-                    <>
-                      <Check className="w-4 h-4 mr-1.5" />
-                      Copied
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-4 h-4 mr-1.5" />
-                      Copy
-                    </>
-                  )}
-                </Button>
-              </div>
-              <Button
-                type="button"
-                onClick={handleContinueFromPromo}
-                disabled={isCheckingOut}
-                className="w-full bg-[#ffa5f9] text-black hover:bg-[#FFD5FC] font-semibold"
-              >
-                {isCheckingOut ? "Loading…" : "Continue to checkout"}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
       </motion.div>
     </section>
   );
