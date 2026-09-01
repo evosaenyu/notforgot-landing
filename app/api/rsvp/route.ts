@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { parseComingToSeeList } from "@/lib/coming-to-see";
 import { sendTicketConfirmation } from "@/lib/email";
-import { formatEventDate } from "@/lib/ticket-sales";
+import { formatEventDate, isTicketSalesEnabled } from "@/lib/ticket-sales";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +21,10 @@ const bodySchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  if (!isTicketSalesEnabled()) {
+    return NextResponse.json({ error: "RSVPs are closed" }, { status: 403 });
+  }
+
   let body: z.infer<typeof bodySchema>;
   try {
     const json = await req.json();
