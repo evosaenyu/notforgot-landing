@@ -115,6 +115,10 @@ export default function TicketBuyingSection() {
   }, []);
 
   useEffect(() => {
+    if (!ticketSalesEnabled) {
+      setIsLoadingData(false);
+      return;
+    }
     fetch("/api/tickets")
       .then((r) => r.json())
       .then((data) => {
