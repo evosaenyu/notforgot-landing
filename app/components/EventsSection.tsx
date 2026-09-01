@@ -21,7 +21,9 @@ interface EventItem {
   ticketLink: string;
 }
 
-const events: EventItem[] = [
+const events: EventItem[] = [];
+
+const pastEvents: EventItem[] = [
   {
     name: "FRAS FEST ON TOUR",
     date: "August 30, 2026 - Sunday (6pm show)",
@@ -30,9 +32,6 @@ const events: EventItem[] = [
     image: frasfestontour,
     ticketLink: "https://partiful.com/e/vWDEqX9Zi3D86rL0jIfT",
   },
-];
-
-const pastEvents: EventItem[] = [
   {
     name: "NAH! Album Release Party",
     date: "May 31, 2026 - Sunday (6:30pm doors, 7pm show)",

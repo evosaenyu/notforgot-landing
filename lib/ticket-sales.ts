@@ -1,5 +1,9 @@
-/** When unset, ticket sales stay enabled (existing deployments). Set to `false` to hide checkout UI. */
+/** Flip to true (and set NEXT_PUBLIC_TICKET_SALES_ENABLED=true) when the next show goes on sale. */
+const TICKET_SALES_OPEN = false;
+
+/** When unset, ticket sales stay hidden after an event. Set to `true` to show checkout UI. */
 export function isTicketSalesEnabled(): boolean {
+  if (!TICKET_SALES_OPEN) return false;
   const raw = process.env.NEXT_PUBLIC_TICKET_SALES_ENABLED?.trim().toLowerCase();
   if (!raw) return true;
   if (raw === "false" || raw === "0" || raw === "no") return false;

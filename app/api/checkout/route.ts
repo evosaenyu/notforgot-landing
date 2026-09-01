@@ -5,6 +5,7 @@ import { formatComingToSeeLabels, parseComingToSeeList } from "@/lib/coming-to-s
 import { DELUXE_PROMO_COOKIE, verifyDeluxePromoCookie } from "@/lib/promo-cookie";
 import { cartIsPromoEligibleOnly, getPromoEligiblePriceIds } from "@/lib/promo-eligibility";
 import { supabaseAdmin } from "@/lib/supabase";
+import { isTicketSalesEnabled } from "@/lib/ticket-sales";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -18,6 +19,10 @@ type LineItem = {
 };
 
 export async function POST(req: NextRequest) {
+  if (!isTicketSalesEnabled()) {
+    return NextResponse.json({ error: "Ticket sales are closed" }, { status: 403 });
+  }
+
   let lineItems: LineItem[];
   let comingToSeeRaw: unknown;
 
