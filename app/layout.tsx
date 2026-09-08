@@ -2,6 +2,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Inter, Open_Sans } from 'next/font/google';
 import Script from 'next/script';
+import { Analytics } from '@vercel/analytics/next';
 
 const GOOGLE_ADS_GTAG_ID = 'AW-18119365314';
 
@@ -58,6 +59,7 @@ export default function RootLayout({
           `}
         </Script>
         {children}
+        <Analytics />
       </body>
     </html>
   );
