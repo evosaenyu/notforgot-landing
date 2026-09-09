@@ -635,9 +635,14 @@ export default function TicketBuyingSection() {
         {/* Footer / checkout (non-PWYW events) */}
         {!isLoadingData && !error && canPurchase && !isPwywOnly && (
           <div className="mt-4 space-y-3">
-            <p className="text-[#ffa5f9]/90 text-sm font-medium">
-              No extra fees!! We cover all that shi
-            </p>
+            <div className="space-y-1">
+              <p className="text-[#ffa5f9]/90 text-sm font-medium">
+                No extra fees!! We cover all that shi
+              </p>
+              <p className="text-[#ffa5f9]/90 text-sm">
+                $5 off with coupon code!
+              </p>
+            </div>
             <div className="rounded-xl border border-amber-200/10 bg-purple-950/40 backdrop-blur-sm p-5">
               <ComingToSeePicker
                 value={comingToSee}
