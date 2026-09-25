@@ -10,6 +10,7 @@ export const COMING_TO_SEE_ARTISTS = [
   { id: "maleek", label: "Maleek" },
   { id: "serena", label: "Serena" },
   { id: "kay-hollins", label: "Kay Hollins" },
+  { id: "far-from-over", label: "Far From Over" },
   { id: "molly-indigo", label: "Molly Indigo" },
   { id: "nfg-collective", label: "N.F.G. Collective" },
 ] as const;
