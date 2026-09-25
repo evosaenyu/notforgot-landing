@@ -284,7 +284,7 @@ export default function TicketBuyingSection() {
         <div className="flex flex-wrap items-baseline gap-2 mb-6">
           <Ticket className="w-5 h-5 text-[#ffa5f9] flex-shrink-0 self-center" />
           <h2 className="text-white font-semibold text-lg">
-            {showUpcomingEvent ? "Get tickets to our next show:" : "Thank you"}
+            {ticketSalesEnabled ? "Get tickets to our next show:" : "Thank you"}
           </h2>
           {event && showUpcomingEvent ? (
             <div className="flex flex-col gap-1">
