@@ -1,12 +1,17 @@
 export const COMING_TO_SEE_ARTISTS = [
-  { id: "vetter", label: "Vetter" },
-  { id: "wes", label: "Wes" },
-  { id: "ramya", label: "Ramya" },
-  { id: "still-summer", label: "Holdout" },
-  { id: "tevin-williams", label: "Tevin Williams" },
-  { id: "lj-the-vagabond", label: "LJ The Vagabond" },
+  { id: "noelia", label: "Noelia" },
+  { id: "dave-langston", label: "Dave Langston" },
+  { id: "tandee", label: "Tandee" },
+  { id: "tay-harmony", label: "Tay Harmony" },
+  { id: "soulflower", label: "SoulFlower" },
+  { id: "vi", label: "Vi" },
+  { id: "pocket-full-groovers", label: "The Pocket Full Groovers" },
+  { id: "justin-drury", label: "Justin Drury" },
+  { id: "maleek", label: "Maleek" },
+  { id: "serena", label: "Serena" },
+  { id: "kay-hollins", label: "Kay Hollins" },
+  { id: "molly-indigo", label: "Molly Indigo" },
   { id: "nfg-collective", label: "N.F.G. Collective" },
-  { id: "lexa", label: "Lexaverse feat Schrodinger's Cats" },
 ] as const;
 
 export type ComingToSeeId = (typeof COMING_TO_SEE_ARTISTS)[number]["id"];

@@ -33,7 +33,7 @@ export default function ComingToSeePicker({
         </span>
       </legend>
       <p className="text-amber-200/50 text-xs -mt-1">
-        August 30 has a stacked lineup — pick everyone you&apos;re excited for.
+        Renaissance Night has a stacked lineup — pick everyone you&apos;re excited for.
       </p>
       <div
         className="grid grid-cols-1 sm:grid-cols-2 gap-2"

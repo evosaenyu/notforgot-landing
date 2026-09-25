@@ -12,7 +12,7 @@ import { type ComingToSeeId } from "@/lib/coming-to-see";
 import ComingToSeePicker from "./ComingToSeePicker";
 
 const ticketSalesEnabled = isTicketSalesEnabled();
-const PARTIFUL_RSVP_URL = "https://partiful.com/e/vWDEqX9Zi3D86rL0jIfT";
+const DOOR_TICKET_PRICE = 20;
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type Tier = {
@@ -272,10 +272,10 @@ export default function TicketBuyingSection() {
           className="mb-6 flex justify-center"
         >
           <Image
-            src="/assets/frasfestontour.jpg"
-            alt="FRAS FEST ON TOUR event poster"
+            src="/assets/renaissancenight.jpg"
+            alt="Renaissance Night event poster"
             width={480}
-            height={480}
+            height={620}
             className="rounded-xl object-contain max-h-[420px] w-auto shadow-lg shadow-purple-950/60"
             priority
           />
@@ -306,25 +306,9 @@ export default function TicketBuyingSection() {
           </p>
         )}
 
-        {/* Partiful RSVP + door tickets when online Stripe tiers are not configured */}
+        {/* Door tickets when online Stripe tiers are not configured */}
         {!isLoadingData && !error && showUpcomingEvent && !canPurchase && (
           <div className="rounded-xl border border-amber-200/10 bg-purple-950/40 backdrop-blur-sm overflow-hidden divide-y divide-amber-200/10 mb-4">
-            <div className="flex items-center gap-4 px-5 py-4">
-              <div className="flex-1 min-w-0">
-                <span className="text-white font-medium">RSVP on Partiful</span>
-                <p className="text-amber-200/50 text-xs mt-0.5">
-                  Reserve your spot and see who&apos;s going
-                </p>
-              </div>
-              <Button
-                asChild
-                className="bg-[#ffa5f9] hover:bg-[#FFD5FC] text-black font-semibold shrink-0"
-              >
-                <a href={PARTIFUL_RSVP_URL} target="_blank" rel="noopener noreferrer">
-                  RSVP
-                </a>
-              </Button>
-            </div>
             <div className="flex items-center gap-4 px-5 py-4">
               <div className="flex-1 min-w-0">
                 <span className="text-white font-medium">In-person Tickets</span>
@@ -333,7 +317,7 @@ export default function TicketBuyingSection() {
                 </p>
               </div>
               <span className="text-amber-200/80 font-medium tabular-nums w-14 text-right shrink-0">
-                $25
+                ${DOOR_TICKET_PRICE}
               </span>
               <span className="text-amber-200/40 text-xs shrink-0 w-[88px] text-center mr-3">
                 Door only
@@ -623,7 +607,7 @@ export default function TicketBuyingSection() {
                 <p className="text-amber-200/50 text-xs mt-0.5">Purchase at the door on the day of the event</p>
               </div>
               <span className="text-amber-200/80 font-medium tabular-nums w-14 text-right shrink-0">
-                $25
+                ${DOOR_TICKET_PRICE}
               </span>
               <span className="text-amber-200/40 text-xs shrink-0 w-[88px] text-center mr-3">
                 Door only

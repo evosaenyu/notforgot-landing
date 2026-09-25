@@ -1,13 +1,11 @@
-/** Flip to true (and set NEXT_PUBLIC_TICKET_SALES_ENABLED=true) when the next show goes on sale. */
-const TICKET_SALES_OPEN = false;
+/** Flip to false after the show to hide checkout/RSVP. */
+const TICKET_SALES_OPEN = true;
 
-/** When unset, ticket sales stay hidden after an event. Set to `true` to show checkout UI. */
+/** Renaissance Night has no promo — keep Stripe checkout from offering or auto-applying codes. */
+export const CHECKOUT_COUPONS_ENABLED = false;
+
 export function isTicketSalesEnabled(): boolean {
-  if (!TICKET_SALES_OPEN) return false;
-  const raw = process.env.NEXT_PUBLIC_TICKET_SALES_ENABLED?.trim().toLowerCase();
-  if (!raw) return true;
-  if (raw === "false" || raw === "0" || raw === "no") return false;
-  return raw === "true" || raw === "1" || raw === "yes";
+  return TICKET_SALES_OPEN;
 }
 
 const EVENT_TIME_ZONE = "America/New_York";

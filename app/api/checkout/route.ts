@@ -5,7 +5,7 @@ import { formatComingToSeeLabels, parseComingToSeeList } from "@/lib/coming-to-s
 import { DELUXE_PROMO_COOKIE, verifyDeluxePromoCookie } from "@/lib/promo-cookie";
 import { cartIsPromoEligibleOnly, getPromoEligiblePriceIds } from "@/lib/promo-eligibility";
 import { supabaseAdmin } from "@/lib/supabase";
-import { isTicketSalesEnabled } from "@/lib/ticket-sales";
+import { CHECKOUT_COUPONS_ENABLED, isTicketSalesEnabled } from "@/lib/ticket-sales";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
 
     // Stripe: `discounts` and `allow_promotion_codes` are mutually exclusive.
     // Pay-what-you-want prices (`custom_unit_amount`) cannot use promotion codes at all.
-    if (!hasCustomUnitAmount) {
+    if (CHECKOUT_COUPONS_ENABLED && !hasCustomUnitAmount) {
       if (autoApplyPromo && stripePromoRef) {
         sessionParams.discounts = stripePromoRef.startsWith("promo_")
           ? [{ promotion_code: stripePromoRef }]
