@@ -4,7 +4,7 @@ export const COMING_TO_SEE_ARTISTS = [
   { id: "tandee", label: "Tandee" },
   { id: "tay-harmony", label: "Tay Harmony" },
   { id: "soulflower", label: "SoulFlower" },
-  { id: "vi", label: "Vi" },
+  { id: "vanie", label: "Vanie" },
   { id: "pocket-full-groovers", label: "The Pocket Full Groovers" },
   { id: "justin-drury", label: "Justin Drury" },
   { id: "maleek", label: "Maleek" },
