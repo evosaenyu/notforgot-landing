@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import Image, { StaticImageData } from "next/image";
 import frasfest from "@/public/assets/frasfest.jpeg";
 import frasfestontour from "@/public/assets/frasfestontour.jpg";
+import renaissancenight from "@/public/assets/renaissancenight.jpg";
 import actionburg from "@/public/assets/actionburg.png";
 import soundsiege from "@/public/assets/soundsiege.png";
 import nahpartyposter from "@/public/assets/nahpartyposter.png";
@@ -21,7 +22,16 @@ interface EventItem {
   ticketLink: string;
 }
 
-const events: EventItem[] = [];
+const events: EventItem[] = [
+  {
+    name: "Renaissance Night",
+    date: "October 10, 2026 - Saturday (8pm show)",
+    locationName: "Sanger Hall",
+    address: "48-20 Skillman Ave, Sunnyside, NY 11104",
+    image: renaissancenight,
+    ticketLink: "/#tickets",
+  },
+];
 
 const pastEvents: EventItem[] = [
   {
@@ -111,8 +121,14 @@ export default function EventsSection() {
           <Button
             variant="outline"
             className="border-amber-400 bg-amber-400 text-black hover:bg-amber-400/60"
+            asChild
           >
-            <a href={event.ticketLink} target="_blank" rel="noopener noreferrer">
+            <a
+              href={event.ticketLink}
+              {...(event.ticketLink.startsWith("http")
+                ? { target: "_blank", rel: "noopener noreferrer" }
+                : {})}
+            >
               Get Tickets
             </a>
           </Button>
