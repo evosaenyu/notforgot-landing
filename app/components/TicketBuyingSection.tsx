@@ -8,8 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import { isTicketSalesEnabled } from "@/lib/ticket-sales";
-import { type ComingToSeeId } from "@/lib/coming-to-see";
-import ComingToSeePicker from "./ComingToSeePicker";
 
 const ticketSalesEnabled = isTicketSalesEnabled();
 const DOOR_TICKET_PRICE = 20;
@@ -43,7 +41,6 @@ async function submitFreeRsvp(payload: {
   email: string;
   phone: string;
   tierKey: string;
-  comingToSee: ComingToSeeId[];
 }) {
   const res = await fetch("/api/rsvp", {
     method: "POST",
@@ -57,7 +54,7 @@ async function submitFreeRsvp(payload: {
 }
 
 // ─── Stripe checkout ─────────────────────────────────────────────────────────
-async function startCheckout(cart: Cart, tiers: Tier[], comingToSee: ComingToSeeId[]) {
+async function startCheckout(cart: Cart, tiers: Tier[]) {
   const lineItems = tiers.flatMap((tier) => {
     const qty = cart[tier.id] ?? 0;
     if (qty === 0) return [];
@@ -68,7 +65,7 @@ async function startCheckout(cart: Cart, tiers: Tier[], comingToSee: ComingToSee
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
-    body: JSON.stringify({ lineItems, comingToSee }),
+    body: JSON.stringify({ lineItems }),
   });
 
   const data = await res.json();
@@ -96,8 +93,6 @@ export default function TicketBuyingSection() {
   const [rsvpPhone, setRsvpPhone] = useState("");
   const [isSubmittingRsvp, setIsSubmittingRsvp] = useState(false);
   const [rsvpError, setRsvpError] = useState<string | null>(null);
-  const [comingToSee, setComingToSee] = useState<ComingToSeeId[]>([]);
-  const [comingToSeeError, setComingToSeeError] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
 
   const pwywTier = tiers.find((t) => t.isPayWhatYouWant) ?? null;
@@ -149,25 +144,12 @@ export default function TicketBuyingSection() {
     ticketSalesEnabled && event !== null && tiers.length > 0;
   const showUpcomingEvent = ticketSalesEnabled && event !== null;
 
-  const hasComingToSee = comingToSee.length > 0;
-
-  const selectComingToSee = (next: ComingToSeeId[]) => {
-    setComingToSee(next);
-    setComingToSeeError(false);
-    if (checkoutError === "Pick who you're coming to see") {
-      setCheckoutError(null);
-    }
-    if (rsvpError === "Pick who you're coming to see") {
-      setRsvpError(null);
-    }
-  };
-
   const proceedToCheckout = async () => {
-    if (totalQty === 0 || isCheckingOut || !hasComingToSee) return;
+    if (totalQty === 0 || isCheckingOut) return;
     setIsCheckingOut(true);
     setCheckoutError(null);
     try {
-      await startCheckout(cart, tiers, comingToSee);
+      await startCheckout(cart, tiers);
     } catch (err) {
       setCheckoutError(err instanceof Error ? err.message : "Something went wrong");
       setIsCheckingOut(false);
@@ -176,11 +158,6 @@ export default function TicketBuyingSection() {
 
   const handleCheckout = () => {
     if (totalQty === 0 || isCheckingOut) return;
-    if (!hasComingToSee) {
-      setComingToSeeError(true);
-      setCheckoutError("Pick who you're coming to see");
-      return;
-    }
     void proceedToCheckout();
   };
 
@@ -211,11 +188,6 @@ export default function TicketBuyingSection() {
   const handleFreeRsvp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!pwywTier || isSubmittingRsvp) return;
-    if (!hasComingToSee) {
-      setComingToSeeError(true);
-      setRsvpError("Pick who you're coming to see");
-      return;
-    }
     setIsSubmittingRsvp(true);
     setRsvpError(null);
     try {
@@ -224,7 +196,6 @@ export default function TicketBuyingSection() {
         email: rsvpEmail,
         phone: rsvpPhone,
         tierKey: pwywTier.id,
-        comingToSee,
       });
       setShowSuccess(true);
       resetChoice();
@@ -446,15 +417,10 @@ export default function TicketBuyingSection() {
                 />
               </div>
             </div>
-            <ComingToSeePicker
-              value={comingToSee}
-              onChange={selectComingToSee}
-              invalid={comingToSeeError}
-            />
             {rsvpError && <p className="text-red-400/80 text-xs">{rsvpError}</p>}
             <Button
               type="submit"
-              disabled={isSubmittingRsvp || !hasComingToSee}
+              disabled={isSubmittingRsvp}
               className="w-full bg-[#ffa5f9] hover:bg-[#FFD5FC] text-black font-semibold disabled:opacity-40"
             >
               {isSubmittingRsvp ? "Submitting…" : "Confirm free RSVP"}
@@ -486,13 +452,6 @@ export default function TicketBuyingSection() {
                 </span>
               </div>
             </div>
-            <div className="px-5 py-4">
-              <ComingToSeePicker
-                value={comingToSee}
-                onChange={selectComingToSee}
-                invalid={comingToSeeError}
-              />
-            </div>
             <div className="px-5 py-4 flex items-center justify-between gap-4">
               <p className="text-amber-200/50 text-sm">
                 1 ticket &mdash;{" "}
@@ -503,7 +462,7 @@ export default function TicketBuyingSection() {
               )}
               <Button
                 onClick={handleCheckout}
-                disabled={isCheckingOut || pwywTier.remaining === 0 || !hasComingToSee}
+                disabled={isCheckingOut || pwywTier.remaining === 0}
                 className="bg-[#ffa5f9] hover:bg-[#FFD5FC] text-black font-semibold px-8 disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0"
               >
                 {isCheckingOut ? (
@@ -622,13 +581,6 @@ export default function TicketBuyingSection() {
             <p className="text-[#ffa5f9]/90 text-sm font-medium">
               No extra fees!! We cover all that shi
             </p>
-            <div className="rounded-xl border border-amber-200/10 bg-purple-950/40 backdrop-blur-sm p-5">
-              <ComingToSeePicker
-                value={comingToSee}
-                onChange={selectComingToSee}
-                invalid={comingToSeeError}
-              />
-            </div>
             <div className="flex items-center justify-between gap-4">
               <div className="text-amber-200/50 text-sm">
                 {totalQty > 0 ? (
@@ -651,8 +603,7 @@ export default function TicketBuyingSection() {
               )}
               <Button
                 onClick={handleCheckout}
-                disabled={totalQty === 0 || isCheckingOut || !hasComingToSee}
-                title={!hasComingToSee ? "Pick who you're coming to see" : undefined}
+                disabled={totalQty === 0 || isCheckingOut}
                 className="bg-[#ffa5f9] hover:bg-[#FFD5FC] text-black font-semibold px-8 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
               >
                 {isCheckingOut ? (
@@ -665,11 +616,6 @@ export default function TicketBuyingSection() {
                 )}
               </Button>
             </div>
-            {totalQty > 0 && !hasComingToSee && (
-              <p className="text-amber-200/45 text-xs">
-                Pick who you&apos;re coming to see to unlock checkout
-              </p>
-            )}
           </div>
         )}
       </motion.div>
