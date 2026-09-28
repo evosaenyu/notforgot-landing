@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
+import { formatComingToSeeLabels, parseComingToSeeList } from "@/lib/coming-to-see";
 import { DELUXE_PROMO_COOKIE, verifyDeluxePromoCookie } from "@/lib/promo-cookie";
 import { cartIsPromoEligibleOnly, getPromoEligiblePriceIds } from "@/lib/promo-eligibility";
 import { supabaseAdmin } from "@/lib/supabase";
@@ -23,12 +24,22 @@ export async function POST(req: NextRequest) {
   }
 
   let lineItems: LineItem[];
+  let comingToSeeRaw: unknown;
 
   try {
     const body = await req.json();
     lineItems = body.lineItems;
+    comingToSeeRaw = body.comingToSee;
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
+
+  const comingToSee = parseComingToSeeList(comingToSeeRaw);
+  if (comingToSee.length === 0) {
+    return NextResponse.json(
+      { error: "Pick who you're coming to see" },
+      { status: 400 }
+    );
   }
 
   if (!lineItems?.length) {
@@ -105,6 +116,8 @@ export async function POST(req: NextRequest) {
       metadata: {
         event_id: activeEvent.id,
         tier_ids: resolvedTier.join(","),
+        coming_to_see: formatComingToSeeLabels(comingToSee),
+        coming_to_see_id: comingToSee.map((artist) => artist.id).join(","),
       },
     };
 
