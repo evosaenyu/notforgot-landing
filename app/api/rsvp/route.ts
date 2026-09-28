@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
+import { parseComingToSeeList } from "@/lib/coming-to-see";
 import { sendTicketConfirmation } from "@/lib/email";
 import { formatEventDate, isTicketSalesEnabled } from "@/lib/ticket-sales";
 import { supabaseAdmin } from "@/lib/supabase";
@@ -13,6 +14,10 @@ const bodySchema = z.object({
   email: z.string().email().max(320),
   phone: z.string().min(7, "Phone is required").max(30),
   tierKey: z.string().min(1).optional(),
+  comingToSee: z.union([
+    z.array(z.string().min(1)).min(1, "Pick who you're coming to see"),
+    z.string().min(1, "Pick who you're coming to see"),
+  ]),
 });
 
 export async function POST(req: NextRequest) {
@@ -26,7 +31,7 @@ export async function POST(req: NextRequest) {
     const result = bodySchema.safeParse(json);
     if (!result.success) {
       return NextResponse.json(
-        { error: "Enter a valid name, email, and phone." },
+        { error: "Enter a valid name, email, phone, and who you're coming to see." },
         { status: 400 }
       );
     }
@@ -64,6 +69,11 @@ export async function POST(req: NextRequest) {
 
   if (tier.sold >= tier.capacity) {
     return NextResponse.json({ error: "This tier is sold out" }, { status: 409 });
+  }
+
+  const comingToSee = parseComingToSeeList(body.comingToSee);
+  if (comingToSee.length === 0) {
+    return NextResponse.json({ error: "Pick who you're coming to see" }, { status: 400 });
   }
 
   const customerName = body.name.trim();

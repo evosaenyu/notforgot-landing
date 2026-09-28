@@ -272,3 +272,33 @@ export async function sendTicketConfirmation(data: TicketConfirmationData) {
   });
   if (!sent) throw new Error("Resend is not configured");
 }
+
+const TEAM_INBOX = "nfgnycofficial@gmail.com";
+
+export async function sendComingToSeePurchaseAlert(opts: {
+  comingToSee: string;
+  customerName: string;
+  customerEmail: string | null;
+  ticketCount: number;
+  totalDollars: number;
+  eventName: string;
+}): Promise<void> {
+  const artist = opts.comingToSee.trim();
+  const buyer = opts.customerName.trim() || "Guest";
+  const email = opts.customerEmail?.trim() || "no email";
+  const tickets = opts.ticketCount === 1 ? "1 ticket" : `${opts.ticketCount} tickets`;
+
+  await sendResendEmail({
+    to: TEAM_INBOX,
+    subject: `Coming to see: ${artist}`,
+    text: [
+      `Coming to see: ${artist}`,
+      ``,
+      `Buyer: ${buyer}`,
+      `Email: ${email}`,
+      `Tickets: ${tickets}`,
+      `Paid: $${opts.totalDollars}`,
+      `Event: ${opts.eventName}`,
+    ].join("\n"),
+  });
+}
