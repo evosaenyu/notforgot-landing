@@ -140,10 +140,10 @@ export default function Home() {
                 onClick={scrollToTickets}
                 className="w-full bg-[#ffa5f9] hover:bg-[#FFD5FC] text-black font-medium text-lg py-6"
               >
-                Get tickets
+                Get tickets or RSVP
               </Button>
               <p className="text-amber-200/70 text-sm tracking-wide">
-                October 10 · starts at 8pm · tickets are just below
+                October 10 · starts at 8pm · $15 online or RSVP for the door
               </p>
             </motion.div>
           )}

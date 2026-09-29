@@ -4,6 +4,9 @@ const TICKET_SALES_OPEN = true;
 /** Renaissance Night has no promo — keep Stripe checkout from offering or auto-applying codes. */
 export const CHECKOUT_COUPONS_ENABLED = false;
 
+/** Door price when someone RSVPs instead of buying online. Not a BOGO. */
+export const DOOR_TICKET_PRICE = 20;
+
 export function isTicketSalesEnabled(): boolean {
   return TICKET_SALES_OPEN;
 }

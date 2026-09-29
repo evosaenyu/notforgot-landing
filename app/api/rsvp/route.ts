@@ -2,9 +2,9 @@ import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
-import { parseComingToSeeList } from "@/lib/coming-to-see";
-import { sendTicketConfirmation } from "@/lib/email";
-import { formatEventDate, isTicketSalesEnabled } from "@/lib/ticket-sales";
+import { formatComingToSeeLabels, parseComingToSeeList } from "@/lib/coming-to-see";
+import { sendComingToSeePurchaseAlert, sendRsvpConfirmation, sendTicketConfirmation } from "@/lib/email";
+import { DOOR_TICKET_PRICE, formatEventDate, isTicketSalesEnabled } from "@/lib/ticket-sales";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +14,8 @@ const bodySchema = z.object({
   email: z.string().email().max(320),
   phone: z.string().min(7, "Phone is required").max(30),
   tierKey: z.string().min(1).optional(),
+  plusOne: z.boolean().optional(),
+  rsvpKind: z.enum(["free", "door"]).optional(),
   comingToSee: z.union([
     z.array(z.string().min(1)).min(1, "Pick who you're coming to see"),
     z.string().min(1, "Pick who you're coming to see"),
@@ -67,8 +69,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Ticket tier not found" }, { status: 404 });
   }
 
-  if (tier.sold >= tier.capacity) {
-    return NextResponse.json({ error: "This tier is sold out" }, { status: 409 });
+  const plusOneTbd = body.plusOne === true;
+  const quantity = plusOneTbd ? 2 : 1;
+  const remaining = tier.capacity - tier.sold;
+
+  if (remaining < quantity) {
+    return NextResponse.json(
+      { error: remaining <= 0 ? "This event is sold out" : "Not enough spots left for a plus one" },
+      { status: 409 }
+    );
   }
 
   const comingToSee = parseComingToSeeList(body.comingToSee);
@@ -79,6 +88,8 @@ export async function POST(req: NextRequest) {
   const customerName = body.name.trim();
   const customerEmail = body.email.trim().toLowerCase();
   const customerPhone = body.phone.trim();
+  const comingToSeeLabels = formatComingToSeeLabels(comingToSee);
+  const isDoorRsvp = body.rsvpKind !== "free";
 
   const { data: order, error: orderError } = await supabaseAdmin
     .from("orders")
@@ -86,6 +97,8 @@ export async function POST(req: NextRequest) {
       stripe_session_id: `rsvp_${randomUUID()}`,
       customer_email: customerEmail,
       customer_phone: customerPhone,
+      customer_name: customerName,
+      coming_to_see: comingToSeeLabels,
       amount_total_cents: 0,
       status: "completed",
     })
@@ -100,7 +113,7 @@ export async function POST(req: NextRequest) {
   const { error: itemError } = await supabaseAdmin.from("order_items").insert({
     order_id: order.id,
     tier_id: tier.id,
-    quantity: 1,
+    quantity,
   });
 
   if (itemError) {
@@ -108,27 +121,55 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to save RSVP" }, { status: 500 });
   }
 
-  const { error: soldError } = await supabaseAdmin
-    .from("ticket_tiers")
-    .update({ sold: tier.sold + 1 })
-    .eq("id", tier.id);
+  const { error: soldError } = await supabaseAdmin.rpc("increment_tier_sold", {
+    p_tier_id: tier.id,
+    p_qty: quantity,
+  });
 
   if (soldError) {
-    console.error("[rsvp] update sold error:", soldError);
+    console.error("[rsvp] increment_tier_sold error:", soldError);
   }
 
   try {
-    await sendTicketConfirmation({
+    await sendComingToSeePurchaseAlert({
+      comingToSee: comingToSeeLabels,
       customerName,
       customerEmail,
-      eventName: event.name,
-      eventDate: formatEventDate(event.date),
-      eventVenue: event.venue ?? "TBD",
-      lineItems: [{ name: `${tier.label} (Free RSVP)`, quantity: 1, unitPrice: 0 }],
+      ticketCount: quantity,
       totalDollars: 0,
+      eventName: event.name,
+      source: "rsvp",
+      plusOneTbd,
     });
   } catch (e) {
-    console.error("[rsvp] sendTicketConfirmation:", e);
+    console.error("[rsvp] coming-to-see alert:", e);
+  }
+
+  try {
+    if (isDoorRsvp) {
+      await sendRsvpConfirmation({
+        customerName,
+        customerEmail,
+        eventName: event.name,
+        eventDate: formatEventDate(event.date),
+        eventVenue: event.venue ?? "TBD",
+        quantity,
+        doorPrice: DOOR_TICKET_PRICE,
+        plusOneTbd,
+      });
+    } else {
+      await sendTicketConfirmation({
+        customerName,
+        customerEmail,
+        eventName: event.name,
+        eventDate: formatEventDate(event.date),
+        eventVenue: event.venue ?? "TBD",
+        lineItems: [{ name: `${tier.label} (Free RSVP)`, quantity, unitPrice: 0 }],
+        totalDollars: 0,
+      });
+    }
+  } catch (e) {
+    console.error("[rsvp] confirmation email:", e);
   }
 
   return NextResponse.json({ ok: true });
