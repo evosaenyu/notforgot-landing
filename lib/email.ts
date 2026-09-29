@@ -282,136 +282,23 @@ export async function sendComingToSeePurchaseAlert(opts: {
   ticketCount: number;
   totalDollars: number;
   eventName: string;
-  source?: "purchase" | "rsvp";
-  plusOneTbd?: boolean;
 }): Promise<void> {
   const artist = opts.comingToSee.trim();
   const buyer = opts.customerName.trim() || "Guest";
   const email = opts.customerEmail?.trim() || "no email";
   const tickets = opts.ticketCount === 1 ? "1 ticket" : `${opts.ticketCount} tickets`;
-  const isRsvp = opts.source === "rsvp";
 
   await sendResendEmail({
     to: TEAM_INBOX,
-    subject: isRsvp ? `RSVP — coming to see: ${artist}` : `Coming to see: ${artist}`,
+    subject: `Coming to see: ${artist}`,
     text: [
       `Coming to see: ${artist}`,
       ``,
-      isRsvp ? `RSVP: ${buyer}` : `Buyer: ${buyer}`,
+      `Buyer: ${buyer}`,
       `Email: ${email}`,
       `Tickets: ${tickets}`,
-      opts.plusOneTbd ? `Plus one: TBD` : null,
-      isRsvp ? `Paid: $0 (pay at the door)` : `Paid: $${opts.totalDollars}`,
+      `Paid: $${opts.totalDollars}`,
       `Event: ${opts.eventName}`,
-    ]
-      .filter((line) => line !== null)
-      .join("\n"),
+    ].join("\n"),
   });
-}
-
-export type RsvpConfirmationData = {
-  customerName: string;
-  customerEmail: string;
-  eventName: string;
-  eventDate: string;
-  eventVenue: string;
-  quantity: number;
-  doorPrice: number;
-  plusOneTbd: boolean;
-};
-
-function buildRsvpConfirmationHtml(d: RsvpConfirmationData): string {
-  const spots = d.quantity === 1 ? "1 spot" : `${d.quantity} spots`;
-  const plusOneNote = d.plusOneTbd
-    ? `<p style="margin:12px 0 0;font-size:14px;color:#d8b4fe;">You marked a plus one — no name needed yet. Just bring them.</p>`
-    : "";
-
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>You're on the list</title>
-</head>
-<body style="margin:0;padding:0;background-color:#1a0a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#1a0a2e;padding:40px 16px;">
-    <tr>
-      <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
-          <tr>
-            <td style="background:linear-gradient(135deg,#2d0a4e,#4a1080);border-radius:12px 12px 0 0;padding:40px 32px;text-align:center;">
-              <p style="margin:0 0 8px;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:#ffa5f9;">N . F . G . C O L L E C T I V E</p>
-              <h1 style="margin:0;font-size:32px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">You&rsquo;re on the list.</h1>
-              <p style="margin:12px 0 0;font-size:16px;color:#d8b4fe;">Pay $${d.doorPrice} per person at the door.</p>
-            </td>
-          </tr>
-          <tr>
-            <td style="background-color:#1e0a38;padding:28px 32px;border-left:1px solid #3b1f5e;border-right:1px solid #3b1f5e;">
-              <p style="margin:0 0 4px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#9d73c8;">Event</p>
-              <p style="margin:0 0 20px;font-size:20px;font-weight:700;color:#ffffff;">${d.eventName}</p>
-              <table width="100%" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td width="50%" style="padding-right:12px;">
-                    <p style="margin:0 0 4px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#9d73c8;">Date</p>
-                    <p style="margin:0;font-size:15px;color:#e9d5ff;">${d.eventDate}</p>
-                  </td>
-                  <td width="50%">
-                    <p style="margin:0 0 4px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#9d73c8;">Venue</p>
-                    <p style="margin:0;font-size:15px;color:#e9d5ff;">${d.eventVenue}</p>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-          <tr>
-            <td style="background-color:#160830;padding:24px 32px 32px;border-left:1px solid #3b1f5e;border-right:1px solid #3b1f5e;border-radius:0 0 12px 12px;border-bottom:1px solid #3b1f5e;">
-              <p style="margin:0;font-size:15px;color:#e9d5ff;line-height:1.6;">
-                We saved <strong style="color:#ffa5f9;">${spots}</strong> under
-                <strong style="color:#ffffff;">${escapeHtmlText(d.customerName)}</strong>.
-                Online tickets stay $15 if you&rsquo;d rather pay before the show.
-              </p>
-              ${plusOneNote}
-              <p style="margin:16px 0 0;font-size:14px;color:#9d73c8;line-height:1.6;">
-                Updates go to <strong style="color:#e9d5ff;">${d.customerEmail}</strong>.
-                Questions? <a href="https://www.instagram.com/nfgxcollective/" style="color:#ffa5f9;text-decoration:none;">@nfgxcollective</a>.
-              </p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`;
-}
-
-export async function sendRsvpConfirmation(data: RsvpConfirmationData) {
-  const spots = data.quantity === 1 ? "1 spot" : `${data.quantity} spots`;
-  const text = [
-    `N.F.G. COLLECTIVE — You're on the list`,
-    ``,
-    `Hey ${data.customerName.split(" ")[0]}, you're RSVP'd for ${data.eventName}.`,
-    ``,
-    `DATE:  ${data.eventDate}`,
-    `VENUE: ${data.eventVenue}`,
-    `SPOTS: ${spots}`,
-    data.plusOneTbd ? `PLUS ONE: TBD — bring them, no name needed yet.` : null,
-    ``,
-    `Pay $${data.doorPrice} per person at the door.`,
-    `Online tickets are still $15 if you'd rather buy before the show.`,
-    ``,
-    `Questions? @nfgxcollective on Instagram.`,
-    ``,
-    `© ${new Date().getFullYear()} N.F.G. Records LLC`,
-  ]
-    .filter((line) => line !== null)
-    .join("\n");
-
-  const sent = await sendResendEmail({
-    to: data.customerEmail,
-    subject: `You're on the list — ${data.eventName}`,
-    html: buildRsvpConfirmationHtml(data),
-    text,
-  });
-  if (!sent) throw new Error("Resend is not configured");
 }

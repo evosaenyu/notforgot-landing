@@ -7,12 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
-import { Checkbox } from "@/components/ui/checkbox";
-import { DOOR_TICKET_PRICE, isTicketSalesEnabled } from "@/lib/ticket-sales";
+import { isTicketSalesEnabled, PARTIFUL_RSVP_URL } from "@/lib/ticket-sales";
 import { type ComingToSeeId } from "@/lib/coming-to-see";
 import ComingToSeePicker from "./ComingToSeePicker";
 
 const ticketSalesEnabled = isTicketSalesEnabled();
+const DOOR_TICKET_PRICE = 20;
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type Tier = {
@@ -37,16 +37,13 @@ type EventInfo = {
 
 type Cart = Record<string, number>;
 type AttendanceChoice = "free" | "donate";
-type PaidPath = "buy" | "rsvp";
 
-async function submitRsvp(payload: {
+async function submitFreeRsvp(payload: {
   name: string;
   email: string;
   phone: string;
   tierKey: string;
   comingToSee: ComingToSeeId[];
-  plusOne?: boolean;
-  rsvpKind: "free" | "door";
 }) {
   const res = await fetch("/api/rsvp", {
     method: "POST",
@@ -94,14 +91,11 @@ export default function TicketBuyingSection() {
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [attendanceChoice, setAttendanceChoice] = useState<AttendanceChoice | null>(null);
-  const [paidPath, setPaidPath] = useState<PaidPath | null>(null);
   const [rsvpName, setRsvpName] = useState("");
   const [rsvpEmail, setRsvpEmail] = useState("");
   const [rsvpPhone, setRsvpPhone] = useState("");
-  const [plusOne, setPlusOne] = useState(false);
   const [isSubmittingRsvp, setIsSubmittingRsvp] = useState(false);
   const [rsvpError, setRsvpError] = useState<string | null>(null);
-  const [successKind, setSuccessKind] = useState<"checkout" | "rsvp" | null>(null);
   const [comingToSee, setComingToSee] = useState<ComingToSeeId[]>([]);
   const [comingToSeeError, setComingToSeeError] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
@@ -113,14 +107,8 @@ export default function TicketBuyingSection() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
-    if (params.get("checkout") === "success") {
+    if (params.get("checkout") === "success" || params.get("rsvp") === "success") {
       setShowSuccess(true);
-      setSuccessKind("checkout");
-      window.history.replaceState({}, "", window.location.pathname + "#tickets");
-      sectionRef.current?.scrollIntoView({ behavior: "smooth" });
-    } else if (params.get("rsvp") === "success") {
-      setShowSuccess(true);
-      setSuccessKind("rsvp");
       window.history.replaceState({}, "", window.location.pathname + "#tickets");
       sectionRef.current?.scrollIntoView({ behavior: "smooth" });
     }
@@ -210,11 +198,9 @@ export default function TicketBuyingSection() {
 
   const resetChoice = () => {
     setAttendanceChoice(null);
-    setPaidPath(null);
     setRsvpName("");
     setRsvpEmail("");
     setRsvpPhone("");
-    setPlusOne(false);
     setRsvpError(null);
     setCheckoutError(null);
     const initial: Cart = {};
@@ -222,12 +208,9 @@ export default function TicketBuyingSection() {
     setCart(initial);
   };
 
-  const handleRsvp = async (
-    e: React.FormEvent,
-    opts: { tierKey: string; rsvpKind: "free" | "door"; plusOne?: boolean }
-  ) => {
+  const handleFreeRsvp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isSubmittingRsvp) return;
+    if (!pwywTier || isSubmittingRsvp) return;
     if (!hasComingToSee) {
       setComingToSeeError(true);
       setRsvpError("Pick who you're coming to see");
@@ -236,17 +219,14 @@ export default function TicketBuyingSection() {
     setIsSubmittingRsvp(true);
     setRsvpError(null);
     try {
-      await submitRsvp({
+      await submitFreeRsvp({
         name: rsvpName,
         email: rsvpEmail,
         phone: rsvpPhone,
-        tierKey: opts.tierKey,
+        tierKey: pwywTier.id,
         comingToSee,
-        plusOne: opts.plusOne,
-        rsvpKind: opts.rsvpKind,
       });
       setShowSuccess(true);
-      setSuccessKind("rsvp");
       resetChoice();
       sectionRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (err) {
@@ -254,17 +234,6 @@ export default function TicketBuyingSection() {
     } finally {
       setIsSubmittingRsvp(false);
     }
-  };
-
-  const handleFreeRsvp = (e: React.FormEvent) => {
-    if (!pwywTier) return;
-    void handleRsvp(e, { tierKey: pwywTier.id, rsvpKind: "free" });
-  };
-
-  const handleDoorRsvp = (e: React.FormEvent) => {
-    const paidTier = tiers[0];
-    if (!paidTier) return;
-    void handleRsvp(e, { tierKey: paidTier.id, rsvpKind: "door", plusOne });
   };
 
   const pwywMinLabel =
@@ -290,16 +259,7 @@ export default function TicketBuyingSection() {
           <div className="mb-6 rounded-lg bg-green-500/15 border border-green-500/30 px-5 py-4 text-green-300 text-sm flex items-center gap-3">
             <span className="text-lg">🎉</span>
             <span>
-              {successKind === "rsvp" ? (
-                <>
-                  <span className="font-semibold">You&apos;re on the list!</span> Check your email
-                  — pay ${DOOR_TICKET_PRICE} at the door.
-                </>
-              ) : (
-                <>
-                  <span className="font-semibold">You&apos;re in!</span> Check your email for your ticket confirmation.
-                </>
-              )}
+              <span className="font-semibold">You&apos;re in!</span> Check your email for your ticket confirmation.
             </span>
           </div>
         )}
@@ -559,143 +519,8 @@ export default function TicketBuyingSection() {
           </div>
         )}
 
-        {/* Paid event: buy tickets vs RSVP (no BOGO) */}
-        {!isLoadingData && !error && canPurchase && !isPwywOnly && !paidPath && (
-          <div className="rounded-xl border border-amber-200/10 bg-purple-950/40 backdrop-blur-sm overflow-hidden p-5 space-y-4">
-            <p className="text-white font-medium text-center">
-              How would you like to come?
-            </p>
-            <p className="text-amber-200/50 text-xs text-center -mt-2">
-              ${tiers[0]?.price ?? 15} online, or RSVP and pay ${DOOR_TICKET_PRICE} at the door.
-              Plus one name can wait.
-            </p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <button
-                type="button"
-                onClick={() => setPaidPath("buy")}
-                className="rounded-lg border border-amber-200/20 bg-purple-950/60 px-4 py-5 text-left hover:border-[#ffa5f9] hover:bg-purple-900/40 transition-colors"
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <Ticket className="w-4 h-4 text-[#ffa5f9]" />
-                  <span className="text-white font-medium">Buy tickets</span>
-                </div>
-                <p className="text-amber-200/50 text-xs leading-relaxed">
-                  ${tiers[0]?.price ?? 15} each online · we cover the fees.
-                </p>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setPaidPath("rsvp");
-                  setRsvpError(null);
-                }}
-                className="rounded-lg border border-amber-200/20 bg-purple-950/60 px-4 py-5 text-left hover:border-[#ffa5f9] hover:bg-purple-900/40 transition-colors"
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <TicketCheck className="w-4 h-4 text-[#ffa5f9]" />
-                  <span className="text-white font-medium">RSVP</span>
-                </div>
-                <p className="text-amber-200/50 text-xs leading-relaxed">
-                  Pay ${DOOR_TICKET_PRICE} at the door. Bring a plus one even if you don&apos;t know who yet.
-                </p>
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Paid event: door RSVP */}
-        {!isLoadingData && !error && canPurchase && !isPwywOnly && paidPath === "rsvp" && (
-          <form
-            onSubmit={handleDoorRsvp}
-            className="rounded-xl border border-amber-200/10 bg-purple-950/40 backdrop-blur-sm overflow-hidden p-5 space-y-4"
-          >
-            <button
-              type="button"
-              onClick={resetChoice}
-              className="flex items-center gap-1.5 text-amber-200/60 text-xs hover:text-[#ffa5f9] transition-colors"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              Back
-            </button>
-            <div>
-              <h3 className="text-white font-medium">RSVP</h3>
-              <p className="text-amber-200/50 text-xs mt-1">
-                We&apos;ll put you on the list. Pay ${DOOR_TICKET_PRICE} per person at the door.
-                Online tickets are still ${tiers[0]?.price ?? 15} if you&apos;d rather buy now.
-              </p>
-            </div>
-            <div className="space-y-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="rsvp-door-name" className="text-amber-200/70">Name</Label>
-                <Input
-                  id="rsvp-door-name"
-                  value={rsvpName}
-                  onChange={(e) => setRsvpName(e.target.value)}
-                  required
-                  autoComplete="name"
-                  className="border-amber-200/20 bg-purple-950/60 text-white"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="rsvp-door-email" className="text-amber-200/70">Email</Label>
-                <Input
-                  id="rsvp-door-email"
-                  type="email"
-                  value={rsvpEmail}
-                  onChange={(e) => setRsvpEmail(e.target.value)}
-                  required
-                  autoComplete="email"
-                  className="border-amber-200/20 bg-purple-950/60 text-white"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="rsvp-door-phone" className="text-amber-200/70">Phone</Label>
-                <Input
-                  id="rsvp-door-phone"
-                  type="tel"
-                  value={rsvpPhone}
-                  onChange={(e) => setRsvpPhone(e.target.value)}
-                  required
-                  autoComplete="tel"
-                  className="border-amber-200/20 bg-purple-950/60 text-white"
-                />
-              </div>
-              <label
-                htmlFor="rsvp-plus-one"
-                className="flex items-start gap-3 rounded-lg border border-amber-200/15 bg-purple-950/50 px-3 py-3 cursor-pointer min-h-[44px]"
-              >
-                <Checkbox
-                  id="rsvp-plus-one"
-                  checked={plusOne}
-                  onCheckedChange={(checked) => setPlusOne(checked === true)}
-                  className="mt-0.5 shrink-0 border-amber-200/50 data-[state=checked]:bg-[#ffa5f9] data-[state=checked]:text-black data-[state=checked]:border-[#ffa5f9]"
-                />
-                <span>
-                  <span className="block text-sm text-white font-medium">I&apos;m bringing a plus one</span>
-                  <span className="block text-amber-200/50 text-xs mt-0.5">
-                    Name can wait. We&apos;ll hold a second door spot (${DOOR_TICKET_PRICE} each).
-                  </span>
-                </span>
-              </label>
-            </div>
-            <ComingToSeePicker
-              value={comingToSee}
-              onChange={selectComingToSee}
-              invalid={comingToSeeError}
-            />
-            {rsvpError && <p className="text-red-400/80 text-xs">{rsvpError}</p>}
-            <Button
-              type="submit"
-              disabled={isSubmittingRsvp || !hasComingToSee}
-              className="w-full bg-[#ffa5f9] hover:bg-[#FFD5FC] text-black font-semibold disabled:opacity-40"
-            >
-              {isSubmittingRsvp ? "Submitting…" : plusOne ? "Confirm RSVP + plus one" : "Confirm RSVP"}
-            </Button>
-          </form>
-        )}
-
         {/* Standard ticket tiers (non-PWYW events) */}
-        {!isLoadingData && !error && canPurchase && !isPwywOnly && paidPath === "buy" && tiers.length > 0 && (
+        {!isLoadingData && !error && canPurchase && !isPwywOnly && tiers.length > 0 && (
           <div className="rounded-xl border border-amber-200/10 bg-purple-950/40 backdrop-blur-sm overflow-hidden divide-y divide-amber-200/10">
             {tiers.map((tier, i) => {
               const qty = cart[tier.id] ?? 0;
@@ -792,16 +617,8 @@ export default function TicketBuyingSection() {
         )}
 
         {/* Footer / checkout (non-PWYW events) */}
-        {!isLoadingData && !error && canPurchase && !isPwywOnly && paidPath === "buy" && (
+        {!isLoadingData && !error && canPurchase && !isPwywOnly && (
           <div className="mt-4 space-y-3">
-            <button
-              type="button"
-              onClick={resetChoice}
-              className="flex items-center gap-1.5 text-amber-200/60 text-xs hover:text-[#ffa5f9] transition-colors"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              Back
-            </button>
             <p className="text-[#ffa5f9]/90 text-sm font-medium">
               No extra fees!! We cover all that shi
             </p>
@@ -854,6 +671,23 @@ export default function TicketBuyingSection() {
               </p>
             )}
           </div>
+        )}
+
+        {showUpcomingEvent && (
+          <a
+            href={PARTIFUL_RSVP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-amber-200/10 bg-purple-950/40 backdrop-blur-sm px-5 py-4 hover:border-[#ffa5f9] transition-colors"
+          >
+            <span>
+              <span className="block text-white font-medium">RSVP on Partiful</span>
+              <span className="block text-amber-200/50 text-xs mt-0.5">
+                Add yourself to the guest list.
+              </span>
+            </span>
+            <span className="text-[#ffa5f9] text-sm font-medium shrink-0">Open →</span>
+          </a>
         )}
       </motion.div>
     </section>
