@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
-import { isTicketSalesEnabled } from "@/lib/ticket-sales";
+import { isTicketSalesEnabled, PARTIFUL_RSVP_URL } from "@/lib/ticket-sales";
 import { type ComingToSeeId } from "@/lib/coming-to-see";
 import ComingToSeePicker from "./ComingToSeePicker";
 
@@ -666,11 +666,28 @@ export default function TicketBuyingSection() {
               </Button>
             </div>
             {totalQty > 0 && !hasComingToSee && (
-              <p className="text-amber-200/45 text-xs">
+              <p className="text-white text-xs">
                 Pick who you&apos;re coming to see to unlock checkout
               </p>
             )}
           </div>
+        )}
+
+        {showUpcomingEvent && (
+          <a
+            href={PARTIFUL_RSVP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-amber-200/10 bg-purple-950/40 backdrop-blur-sm px-5 py-4 hover:border-[#ffa5f9] transition-colors"
+          >
+            <span>
+              <span className="block text-white font-medium">RSVP on Partiful</span>
+              <span className="block text-amber-200/50 text-xs mt-0.5">
+                Add yourself to the guest list.
+              </span>
+            </span>
+            <span className="text-[#ffa5f9] text-sm font-medium shrink-0">Open →</span>
+          </a>
         )}
       </motion.div>
     </section>

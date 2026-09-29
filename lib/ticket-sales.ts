@@ -4,6 +4,10 @@ const TICKET_SALES_OPEN = true;
 /** Renaissance Night has no promo — keep Stripe checkout from offering or auto-applying codes. */
 export const CHECKOUT_COUPONS_ENABLED = false;
 
+/** Guest list / RSVP for Renaissance Night. */
+export const PARTIFUL_RSVP_URL =
+  "https://partiful.com/e/OoNVrPfjVE6qgTIkemcK?c=k2iQUzDf";
+
 export function isTicketSalesEnabled(): boolean {
   return TICKET_SALES_OPEN;
 }

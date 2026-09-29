@@ -124,6 +124,8 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
           : session.payment_intent?.id ?? null,
         customer_email: customerEmail,
         customer_phone: customerPhone,
+        customer_name: customerName,
+        coming_to_see: comingToSee,
         amount_total_cents: amountTotal,
         status: "completed",
       })
