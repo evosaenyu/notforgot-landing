@@ -666,7 +666,7 @@ export default function TicketBuyingSection() {
               </Button>
             </div>
             {totalQty > 0 && !hasComingToSee && (
-              <p className="text-amber-200/45 text-xs">
+              <p className="text-white text-xs">
                 Pick who you&apos;re coming to see to unlock checkout
               </p>
             )}
