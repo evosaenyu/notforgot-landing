@@ -10,6 +10,11 @@ type ComingToSeePickerProps = {
   invalid?: boolean;
 };
 
+const GRAY_BORDER = "border-zinc-600";
+const GRAY_BORDER_HOVER = "hover:border-zinc-500 hover:bg-purple-900/35";
+const CHECKBOX_CLASS =
+  "h-5 w-5 shrink-0 rounded-[4px] border-zinc-500 bg-transparent shadow-none ring-offset-0 focus-visible:ring-1 focus-visible:ring-zinc-500 focus-visible:ring-offset-0 data-[state=checked]:bg-[#ffa5f9] data-[state=checked]:text-black data-[state=checked]:border-[#ffa5f9] data-[state=indeterminate]:bg-[#ffa5f9] data-[state=indeterminate]:text-black data-[state=indeterminate]:border-[#ffa5f9]";
+
 export default function ComingToSeePicker({
   value,
   onChange,
@@ -17,6 +22,8 @@ export default function ComingToSeePicker({
 }: ComingToSeePickerProps) {
   const allIds = COMING_TO_SEE_ARTISTS.map((artist) => artist.id);
   const allSelected = value.length === COMING_TO_SEE_ARTISTS.length;
+  const someSelected = value.length > 0 && !allSelected;
+  const oddLastChip = COMING_TO_SEE_ARTISTS.length % 2 === 1;
 
   const toggle = (id: ComingToSeeId, checked: boolean) => {
     if (checked) {
@@ -33,11 +40,12 @@ export default function ComingToSeePicker({
 
   const chipClass = (selected: boolean) =>
     cn(
-      "flex items-center gap-2 rounded-lg border px-2.5 py-2 sm:gap-3 sm:px-3 cursor-pointer transition-colors min-h-[44px]",
+      "flex items-center gap-2.5 rounded-lg border px-3 py-2.5 cursor-pointer transition-colors min-h-[48px] h-full",
+      "focus-within:ring-1 focus-within:ring-zinc-400/70",
       selected
         ? "border-[#ffa5f9] bg-[#ffa5f9]/10"
-        : "border-amber-200/15 bg-purple-950/50 hover:border-[#ffa5f9]/50 hover:bg-purple-900/30",
-      invalid && !selected && "border-red-400/40"
+        : cn(GRAY_BORDER, "bg-purple-950/50", GRAY_BORDER_HOVER),
+      invalid && !selected && "border-red-400/50"
     );
 
   return (
@@ -49,42 +57,44 @@ export default function ComingToSeePicker({
           *
         </span>
       </p>
-      <p className="text-amber-200/50 text-xs -mt-1">
+      <p className="text-zinc-300 text-xs -mt-1">
         Tap a name or grab the whole lineup.
       </p>
       <label
         htmlFor="coming-to-see-all"
-        className={chipClass(allSelected)}
+        className={cn(chipClass(allSelected), "min-h-[44px]")}
       >
         <Checkbox
           id="coming-to-see-all"
-          checked={allSelected}
+          checked={allSelected ? true : someSelected ? "indeterminate" : false}
           onCheckedChange={(checked) => toggleAll(checked === true)}
-          className="shrink-0 border-amber-200/50 data-[state=checked]:bg-[#ffa5f9] data-[state=checked]:text-black data-[state=checked]:border-[#ffa5f9]"
+          className={CHECKBOX_CLASS}
         />
         <span className="text-sm text-white font-medium">Select all</span>
       </label>
       <div
-        className="grid grid-cols-2 gap-2"
+        className="grid grid-cols-2 gap-2.5"
         role="group"
         aria-required="true"
         aria-invalid={invalid}
       >
-        {COMING_TO_SEE_ARTISTS.map((artist) => {
+        {COMING_TO_SEE_ARTISTS.map((artist, index) => {
           const selected = value.includes(artist.id);
+          const isLastOdd =
+            oddLastChip && index === COMING_TO_SEE_ARTISTS.length - 1;
           return (
             <label
               key={artist.id}
               htmlFor={`coming-to-see-${artist.id}`}
-              className={chipClass(selected)}
+              className={cn(chipClass(selected), isLastOdd && "col-span-2")}
             >
               <Checkbox
                 id={`coming-to-see-${artist.id}`}
                 checked={selected}
                 onCheckedChange={(checked) => toggle(artist.id, checked === true)}
-                className="shrink-0 border-amber-200/50 data-[state=checked]:bg-[#ffa5f9] data-[state=checked]:text-black data-[state=checked]:border-[#ffa5f9]"
+                className={CHECKBOX_CLASS}
               />
-              <span className="text-xs sm:text-sm text-white leading-snug break-words">
+              <span className="text-sm text-white leading-snug">
                 {artist.label}
               </span>
             </label>
