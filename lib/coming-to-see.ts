@@ -1,5 +1,5 @@
 export const COMING_TO_SEE_ARTISTS = [
-  { id: "noelia", label: "Noelia" },
+  { id: "noelani", label: "Noelani" },
   { id: "keyairuh", label: "Keyairuh" },
   { id: "pocket-fuel-groovers", label: "Pocket Fuel Groovers" },
   { id: "serena", label: "Serena" },
