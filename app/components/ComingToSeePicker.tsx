@@ -10,10 +10,10 @@ type ComingToSeePickerProps = {
   invalid?: boolean;
 };
 
-const GRAY_BORDER = "border-zinc-500/55";
-const GRAY_BORDER_HOVER = "hover:border-zinc-400/80 hover:bg-purple-900/35";
+const GRAY_BORDER = "border-zinc-600";
+const GRAY_BORDER_HOVER = "hover:border-zinc-500 hover:bg-purple-900/35";
 const CHECKBOX_CLASS =
-  "h-5 w-5 shrink-0 rounded-[4px] border-zinc-400/80 bg-transparent shadow-none ring-offset-0 focus-visible:ring-1 focus-visible:ring-zinc-400 focus-visible:ring-offset-0 data-[state=checked]:bg-[#ffa5f9] data-[state=checked]:text-black data-[state=checked]:border-[#ffa5f9] data-[state=indeterminate]:bg-[#ffa5f9] data-[state=indeterminate]:text-black data-[state=indeterminate]:border-[#ffa5f9]";
+  "h-5 w-5 shrink-0 rounded-[4px] border-zinc-500 bg-transparent shadow-none ring-offset-0 focus-visible:ring-1 focus-visible:ring-zinc-500 focus-visible:ring-offset-0 data-[state=checked]:bg-[#ffa5f9] data-[state=checked]:text-black data-[state=checked]:border-[#ffa5f9] data-[state=indeterminate]:bg-[#ffa5f9] data-[state=indeterminate]:text-black data-[state=indeterminate]:border-[#ffa5f9]";
 
 export default function ComingToSeePicker({
   value,

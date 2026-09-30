@@ -622,7 +622,7 @@ export default function TicketBuyingSection() {
             <p className="text-[#ffa5f9]/90 text-sm font-medium">
               No extra fees!! We cover all that shi
             </p>
-            <div className="rounded-xl border border-zinc-500/40 bg-purple-950/40 backdrop-blur-sm p-5">
+            <div className="rounded-xl border border-zinc-600 bg-purple-950/40 backdrop-blur-sm p-5">
               <ComingToSeePicker
                 value={comingToSee}
                 onChange={selectComingToSee}
