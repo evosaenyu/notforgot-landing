@@ -8,7 +8,7 @@ import MusicSection from "./components/MusicSection";
 import BlogSection from "./components/BlogSection";
 import TicketBuyingSection from "./components/TicketBuyingSection";
 import PromoEmailModal from "./components/PromoEmailModal";
-import { isTicketSalesEnabled, PARTIFUL_RSVP_URL } from "@/lib/ticket-sales";
+import { isPaidTicketsEnabled, isTicketSalesEnabled, PARTIFUL_RSVP_URL } from "@/lib/ticket-sales";
 import BackgroundVideo from "./components/BackgroundVideo";
 import { Button } from "@/components/ui/button";
 import { Nabla, Monda } from "next/font/google";
@@ -53,6 +53,7 @@ const generateRandomColors = () => {
 };
 
 const ticketSalesEnabled = isTicketSalesEnabled();
+const paidTicketsEnabled = isPaidTicketsEnabled();
 
 export default function Home() {
   const [colors, setColors] = useState(["#FF6B6B", "#4ECDC4", "#45B7D1"]);
@@ -135,16 +136,22 @@ export default function Home() {
               transition={{ delay: 2, duration: 2, ease: "easeInOut" }}
               className="max-w-md mx-auto space-y-3"
             >
-              <Button
-                type="button"
-                onClick={scrollToTickets}
-                className="w-full bg-[#ffa5f9] hover:bg-[#FFD5FC] text-black font-medium text-lg py-6"
-              >
-                Get tickets
-              </Button>
+              {paidTicketsEnabled && (
+                <Button
+                  type="button"
+                  onClick={scrollToTickets}
+                  className="w-full bg-[#ffa5f9] hover:bg-[#FFD5FC] text-black font-medium text-lg py-6"
+                >
+                  Get tickets
+                </Button>
+              )}
               <Button
                 asChild
-                className="w-full bg-transparent border border-amber-200/30 hover:border-[#ffa5f9] hover:bg-purple-950/40 text-amber-100 hover:text-[#ffa5f9] font-medium text-lg py-6"
+                className={
+                  paidTicketsEnabled
+                    ? "w-full bg-transparent border border-amber-200/30 hover:border-[#ffa5f9] hover:bg-purple-950/40 text-amber-100 hover:text-[#ffa5f9] font-medium text-lg py-6"
+                    : "w-full bg-[#ffa5f9] hover:bg-[#FFD5FC] text-black font-medium text-lg py-6"
+                }
               >
                 <a
                   href={PARTIFUL_RSVP_URL}
@@ -155,7 +162,9 @@ export default function Home() {
                 </a>
               </Button>
               <p className="text-amber-200/70 text-sm tracking-wide">
-                October 10 · starts at 8pm · tickets are just below
+                {paidTicketsEnabled
+                  ? "October 10 · starts at 8pm · tickets are just below"
+                  : "October 10 · starts at 8pm · free"}
               </p>
             </motion.div>
           )}
