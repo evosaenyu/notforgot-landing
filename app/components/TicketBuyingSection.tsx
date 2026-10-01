@@ -7,11 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
-import { isTicketSalesEnabled, PARTIFUL_RSVP_URL } from "@/lib/ticket-sales";
+import { isPaidTicketsEnabled, isTicketSalesEnabled, PARTIFUL_RSVP_URL } from "@/lib/ticket-sales";
 import { type ComingToSeeId } from "@/lib/coming-to-see";
 import ComingToSeePicker from "./ComingToSeePicker";
 
 const ticketSalesEnabled = isTicketSalesEnabled();
+const paidTicketsEnabled = isPaidTicketsEnabled();
 const DOOR_TICKET_PRICE = 20;
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -122,14 +123,20 @@ export default function TicketBuyingSection() {
     fetch("/api/tickets")
       .then((r) => r.json())
       .then((data) => {
-        if (data.error) { setError(data.error); return; }
+        if (data.error) {
+          if (paidTicketsEnabled) setError(data.error);
+          if (data.event) setEvent(data.event);
+          return;
+        }
         setEvent(data.event ?? null);
         setTiers(data.tiers ?? []);
         const initial: Cart = {};
         (data.tiers ?? []).forEach((t: Tier) => { initial[t.id] = 0; });
         setCart(initial);
       })
-      .catch(() => setError("Failed to load tickets"))
+      .catch(() => {
+        if (paidTicketsEnabled) setError("Failed to load tickets");
+      })
       .finally(() => setIsLoadingData(false));
   }, []);
 
@@ -146,7 +153,7 @@ export default function TicketBuyingSection() {
   const totalPrice = tiers.reduce((sum, t) => sum + (cart[t.id] ?? 0) * t.price, 0);
 
   const canPurchase =
-    ticketSalesEnabled && event !== null && tiers.length > 0;
+    paidTicketsEnabled && event !== null && tiers.length > 0;
   const showUpcomingEvent = ticketSalesEnabled && event !== null;
 
   const hasComingToSee = comingToSee.length > 0;
@@ -284,7 +291,11 @@ export default function TicketBuyingSection() {
         <div className="flex flex-wrap items-baseline gap-2 mb-6">
           <Ticket className="w-5 h-5 text-[#ffa5f9] flex-shrink-0 self-center" />
           <h2 className="text-white font-semibold text-lg">
-            {ticketSalesEnabled ? "Get tickets to our next show:" : "Thank you"}
+            {ticketSalesEnabled
+              ? paidTicketsEnabled
+                ? "Get tickets to our next show:"
+                : "RSVP to our next show:"
+              : "Thank you"}
           </h2>
           {event && showUpcomingEvent ? (
             <div className="flex flex-col gap-1">
@@ -307,7 +318,7 @@ export default function TicketBuyingSection() {
         )}
 
         {/* Door tickets when online Stripe tiers are not configured */}
-        {!isLoadingData && !error && showUpcomingEvent && !canPurchase && (
+        {!isLoadingData && !error && paidTicketsEnabled && showUpcomingEvent && !canPurchase && (
           <div className="rounded-xl border border-amber-200/10 bg-purple-950/40 backdrop-blur-sm overflow-hidden divide-y divide-amber-200/10 mb-4">
             <div className="flex items-center gap-4 px-5 py-4">
               <div className="flex-1 min-w-0">
@@ -327,7 +338,7 @@ export default function TicketBuyingSection() {
         )}
 
         {/* Error state */}
-        {error && (
+        {error && paidTicketsEnabled && (
           <p className="text-red-400/80 text-sm text-center py-8">{error}</p>
         )}
 
@@ -673,21 +684,41 @@ export default function TicketBuyingSection() {
           </div>
         )}
 
-        {showUpcomingEvent && (
-          <a
-            href={PARTIFUL_RSVP_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-amber-200/10 bg-purple-950/40 backdrop-blur-sm px-5 py-4 hover:border-[#ffa5f9] transition-colors"
-          >
-            <span>
-              <span className="block text-white font-medium">RSVP on Partiful</span>
-              <span className="block text-amber-200/50 text-xs mt-0.5">
-                Add yourself to the guest list.
+        {ticketSalesEnabled && (
+          paidTicketsEnabled ? (
+            <a
+              href={PARTIFUL_RSVP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-amber-200/10 bg-purple-950/40 backdrop-blur-sm px-5 py-4 hover:border-[#ffa5f9] transition-colors"
+            >
+              <span>
+                <span className="block text-white font-medium">RSVP on Partiful</span>
+                <span className="block text-amber-200/50 text-xs mt-0.5">
+                  Add yourself to the guest list.
+                </span>
               </span>
-            </span>
-            <span className="text-[#ffa5f9] text-sm font-medium shrink-0">Open →</span>
-          </a>
+              <span className="text-[#ffa5f9] text-sm font-medium shrink-0">Open →</span>
+            </a>
+          ) : (
+            <div className="mt-2 space-y-2">
+              <Button
+                asChild
+                className="w-full bg-[#ffa5f9] hover:bg-[#FFD5FC] text-black font-medium text-lg py-6"
+              >
+                <a
+                  href={PARTIFUL_RSVP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  RSVP on Partiful
+                </a>
+              </Button>
+              <p className="text-amber-200/50 text-sm text-center">
+                Free · add yourself to the guest list
+              </p>
+            </div>
+          )
         )}
       </motion.div>
     </section>

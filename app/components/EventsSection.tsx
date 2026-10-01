@@ -129,7 +129,7 @@ export default function EventsSection() {
                 ? { target: "_blank", rel: "noopener noreferrer" }
                 : {})}
             >
-              Get Tickets
+              RSVP
             </a>
           </Button>
         )}
