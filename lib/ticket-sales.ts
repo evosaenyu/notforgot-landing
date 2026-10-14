@@ -1,5 +1,5 @@
-/** Flip to false after the show to hide checkout/RSVP. */
-const TICKET_SALES_OPEN = true;
+/** Flip to true when the next show goes on sale. */
+const TICKET_SALES_OPEN = false;
 
 /** Flip to false to hide paid checkout while keeping RSVP. */
 const PAID_TICKETS_OPEN = false;

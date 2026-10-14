@@ -313,7 +313,7 @@ export default function TicketBuyingSection() {
 
         {!isLoadingData && !error && !showUpcomingEvent && (
           <p className="text-amber-200/70 text-center text-base mb-6">
-            We had such a blast with you at the last event!
+            Thank you to everyone who came out to Renaissance Night — we had such a blast with you.
           </p>
         )}
 

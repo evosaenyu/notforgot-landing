@@ -22,18 +22,17 @@ interface EventItem {
   ticketLink: string;
 }
 
-const events: EventItem[] = [
+const events: EventItem[] = [];
+
+const pastEvents: EventItem[] = [
   {
     name: "Renaissance Night",
     date: "October 10, 2026 - Saturday (8pm show)",
     locationName: "Sanger Hall",
     address: "48-20 Skillman Ave, Sunnyside, NY 11104",
     image: renaissancenight,
-    ticketLink: "/#tickets",
+    ticketLink: "https://partiful.com/e/OoNVrPfjVE6qgTIkemcK?c=k2iQUzDf",
   },
-];
-
-const pastEvents: EventItem[] = [
   {
     name: "FRAS FEST ON TOUR",
     date: "August 30, 2026 - Sunday (6pm show)",
@@ -149,15 +148,22 @@ export default function EventsSection() {
   return (
     <section className="py-20 px-4 relative">
       <div className="max-w-6xl mx-auto">
-        {events.length > 0 && (
-          <>
-            <h2 className="text-4xl font-bold text-amber-300 mb-12">
-              Upcoming Events
-            </h2>
-            <div className="space-y-6">
-              {events.map((event) => renderEventCard(event))}
-            </div>
-          </>
+        <h2 className="text-4xl font-bold text-amber-300 mb-12">
+          Upcoming Events
+        </h2>
+        {events.length > 0 ? (
+          <div className="space-y-6">
+            {events.map((event) => renderEventCard(event))}
+          </div>
+        ) : (
+          <Card className="bg-purple-950/50 border-amber-300/20 p-6 backdrop-blur-sm">
+            <p className="text-amber-200 text-lg font-semibold mb-2">
+              Thank you
+            </p>
+            <p className="text-amber-200/70">
+              Thank you to everyone who came out to Renaissance Night — we had such a blast with you.
+            </p>
+          </Card>
         )}
 
         {pastEvents.length > 0 && (
