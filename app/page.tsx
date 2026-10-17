@@ -163,8 +163,8 @@ export default function Home() {
               </Button>
               <p className="text-amber-200/70 text-sm tracking-wide">
                 {paidTicketsEnabled
-                  ? "October 10 · starts at 8pm · tickets are just below"
-                  : "October 10 · starts at 8pm · free"}
+                  ? "October 30 · starts at 8pm · tickets are just below"
+                  : "October 30 · starts at 8pm · free"}
               </p>
             </motion.div>
           )}

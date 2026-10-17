@@ -2,8 +2,6 @@
 
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
-import Image from "next/image";
-import renaissancenight from "@/public/assets/renaissancenight.jpg";
 
 interface FullScreenModalProps {
   isOpen: boolean;
@@ -29,14 +27,19 @@ export default function FullScreenModal({ isOpen, onClose }: FullScreenModalProp
         <X className="w-8 h-8" />
       </button>
       <div className="max-w-4xl w-full" onClick={e => e.stopPropagation()}>
-        <Image
-          src={renaissancenight}
-          alt="Renaissance Night"
+        <video
+          src="/assets/trickandtreat.mp4"
+          poster="/assets/trickandtreat.jpg"
+          autoPlay
+          loop
+          muted
+          playsInline
+          aria-label="Trick & Treat event poster"
           className="w-full h-auto rounded-lg"
-          width={1200}
-          height={1500}
+          width={384}
+          height={456}
         />
       </div>
     </motion.div>
   );
-} 
+}

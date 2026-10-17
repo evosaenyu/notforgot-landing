@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
 import { Minus, Plus, Ticket, ArrowLeft, Heart, TicketCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,8 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import { isPaidTicketsEnabled, isTicketSalesEnabled, PARTIFUL_RSVP_URL } from "@/lib/ticket-sales";
-import { type ComingToSeeId } from "@/lib/coming-to-see";
-import ComingToSeePicker from "./ComingToSeePicker";
 
 const ticketSalesEnabled = isTicketSalesEnabled();
 const paidTicketsEnabled = isPaidTicketsEnabled();
@@ -44,7 +41,6 @@ async function submitFreeRsvp(payload: {
   email: string;
   phone: string;
   tierKey: string;
-  comingToSee: ComingToSeeId[];
 }) {
   const res = await fetch("/api/rsvp", {
     method: "POST",
@@ -58,7 +54,7 @@ async function submitFreeRsvp(payload: {
 }
 
 // ─── Stripe checkout ─────────────────────────────────────────────────────────
-async function startCheckout(cart: Cart, tiers: Tier[], comingToSee: ComingToSeeId[]) {
+async function startCheckout(cart: Cart, tiers: Tier[]) {
   const lineItems = tiers.flatMap((tier) => {
     const qty = cart[tier.id] ?? 0;
     if (qty === 0) return [];
@@ -69,7 +65,7 @@ async function startCheckout(cart: Cart, tiers: Tier[], comingToSee: ComingToSee
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
-    body: JSON.stringify({ lineItems, comingToSee }),
+    body: JSON.stringify({ lineItems }),
   });
 
   const data = await res.json();
@@ -97,8 +93,6 @@ export default function TicketBuyingSection() {
   const [rsvpPhone, setRsvpPhone] = useState("");
   const [isSubmittingRsvp, setIsSubmittingRsvp] = useState(false);
   const [rsvpError, setRsvpError] = useState<string | null>(null);
-  const [comingToSee, setComingToSee] = useState<ComingToSeeId[]>([]);
-  const [comingToSeeError, setComingToSeeError] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
 
   const pwywTier = tiers.find((t) => t.isPayWhatYouWant) ?? null;
@@ -144,7 +138,7 @@ export default function TicketBuyingSection() {
     const tier = tiers.find((t) => t.id === id)!;
     setCart((prev) => ({
       ...prev,
-      [id]: Math.min(Math.max(0, (prev[id] ?? 0) + delta), Math.min(tier.max, tier.remaining)),
+      [id]: Math.min(Math.max(0, (prev[id] ?? 0) + delta), Math.max(0, Math.min(tier.max, tier.remaining))),
     }));
   };
 
@@ -156,25 +150,12 @@ export default function TicketBuyingSection() {
     paidTicketsEnabled && event !== null && tiers.length > 0;
   const showUpcomingEvent = ticketSalesEnabled && event !== null;
 
-  const hasComingToSee = comingToSee.length > 0;
-
-  const selectComingToSee = (next: ComingToSeeId[]) => {
-    setComingToSee(next);
-    setComingToSeeError(false);
-    if (checkoutError === "Pick who you're coming to see") {
-      setCheckoutError(null);
-    }
-    if (rsvpError === "Pick who you're coming to see") {
-      setRsvpError(null);
-    }
-  };
-
   const proceedToCheckout = async () => {
-    if (totalQty === 0 || isCheckingOut || !hasComingToSee) return;
+    if (totalQty === 0 || isCheckingOut) return;
     setIsCheckingOut(true);
     setCheckoutError(null);
     try {
-      await startCheckout(cart, tiers, comingToSee);
+      await startCheckout(cart, tiers);
     } catch (err) {
       setCheckoutError(err instanceof Error ? err.message : "Something went wrong");
       setIsCheckingOut(false);
@@ -183,11 +164,6 @@ export default function TicketBuyingSection() {
 
   const handleCheckout = () => {
     if (totalQty === 0 || isCheckingOut) return;
-    if (!hasComingToSee) {
-      setComingToSeeError(true);
-      setCheckoutError("Pick who you're coming to see");
-      return;
-    }
     void proceedToCheckout();
   };
 
@@ -218,11 +194,6 @@ export default function TicketBuyingSection() {
   const handleFreeRsvp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!pwywTier || isSubmittingRsvp) return;
-    if (!hasComingToSee) {
-      setComingToSeeError(true);
-      setRsvpError("Pick who you're coming to see");
-      return;
-    }
     setIsSubmittingRsvp(true);
     setRsvpError(null);
     try {
@@ -231,7 +202,6 @@ export default function TicketBuyingSection() {
         email: rsvpEmail,
         phone: rsvpPhone,
         tierKey: pwywTier.id,
-        comingToSee,
       });
       setShowSuccess(true);
       resetChoice();
@@ -278,13 +248,17 @@ export default function TicketBuyingSection() {
           transition={{ duration: 0.6 }}
           className="mb-6 flex justify-center"
         >
-          <Image
-            src="/assets/renaissancenight.jpg"
-            alt="Renaissance Night event poster"
-            width={480}
-            height={620}
+          <video
+            src="/assets/trickandtreat.mp4"
+            poster="/assets/trickandtreat.jpg"
+            autoPlay
+            loop
+            muted
+            playsInline
+            aria-label="Trick & Treat event poster"
+            width={384}
+            height={456}
             className="rounded-xl object-contain max-h-[420px] w-auto shadow-lg shadow-purple-950/60"
-            priority
           />
         </motion.div>
         {/* Header */}
@@ -388,7 +362,7 @@ export default function TicketBuyingSection() {
               <button
                 type="button"
                 onClick={selectDonate}
-                disabled={pwywTier.remaining === 0}
+                disabled={pwywTier.remaining <= 0}
                 className="rounded-lg border border-amber-200/20 bg-purple-950/60 px-4 py-5 text-left hover:border-[#ffa5f9] hover:bg-purple-900/40 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <div className="flex items-center gap-2 mb-2">
@@ -457,15 +431,10 @@ export default function TicketBuyingSection() {
                 />
               </div>
             </div>
-            <ComingToSeePicker
-              value={comingToSee}
-              onChange={selectComingToSee}
-              invalid={comingToSeeError}
-            />
             {rsvpError && <p className="text-red-400/80 text-xs">{rsvpError}</p>}
             <Button
               type="submit"
-              disabled={isSubmittingRsvp || !hasComingToSee}
+              disabled={isSubmittingRsvp}
               className="w-full bg-[#ffa5f9] hover:bg-[#FFD5FC] text-black font-semibold disabled:opacity-40"
             >
               {isSubmittingRsvp ? "Submitting…" : "Confirm free RSVP"}
@@ -497,13 +466,6 @@ export default function TicketBuyingSection() {
                 </span>
               </div>
             </div>
-            <div className="px-5 py-4">
-              <ComingToSeePicker
-                value={comingToSee}
-                onChange={selectComingToSee}
-                invalid={comingToSeeError}
-              />
-            </div>
             <div className="px-5 py-4 flex items-center justify-between gap-4">
               <p className="text-amber-200/50 text-sm">
                 1 ticket &mdash;{" "}
@@ -514,7 +476,7 @@ export default function TicketBuyingSection() {
               )}
               <Button
                 onClick={handleCheckout}
-                disabled={isCheckingOut || pwywTier.remaining === 0 || !hasComingToSee}
+                disabled={isCheckingOut || pwywTier.remaining <= 0}
                 className="bg-[#ffa5f9] hover:bg-[#FFD5FC] text-black font-semibold px-8 disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0"
               >
                 {isCheckingOut ? (
@@ -535,7 +497,7 @@ export default function TicketBuyingSection() {
           <div className="rounded-xl border border-amber-200/10 bg-purple-950/40 backdrop-blur-sm overflow-hidden divide-y divide-amber-200/10">
             {tiers.map((tier, i) => {
               const qty = cart[tier.id] ?? 0;
-              const soldOut = tier.remaining === 0;
+              const soldOut = tier.remaining <= 0;
               const atMax = qty >= Math.min(tier.max, tier.remaining);
 
               return (
@@ -633,13 +595,6 @@ export default function TicketBuyingSection() {
             <p className="text-[#ffa5f9]/90 text-sm font-medium">
               No extra fees!! We cover all that shi
             </p>
-            <div className="rounded-xl border border-zinc-600 bg-purple-950/40 backdrop-blur-sm p-5">
-              <ComingToSeePicker
-                value={comingToSee}
-                onChange={selectComingToSee}
-                invalid={comingToSeeError}
-              />
-            </div>
             <div className="flex items-center justify-between gap-4">
               <div className="text-amber-200/50 text-sm">
                 {totalQty > 0 ? (
@@ -662,8 +617,7 @@ export default function TicketBuyingSection() {
               )}
               <Button
                 onClick={handleCheckout}
-                disabled={totalQty === 0 || isCheckingOut || !hasComingToSee}
-                title={!hasComingToSee ? "Pick who you're coming to see" : undefined}
+                disabled={totalQty === 0 || isCheckingOut}
                 className="bg-[#ffa5f9] hover:bg-[#FFD5FC] text-black font-semibold px-8 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
               >
                 {isCheckingOut ? (
@@ -676,11 +630,6 @@ export default function TicketBuyingSection() {
                 )}
               </Button>
             </div>
-            {totalQty > 0 && !hasComingToSee && (
-              <p className="text-white text-xs">
-                Pick who you&apos;re coming to see to unlock checkout
-              </p>
-            )}
           </div>
         )}
 
