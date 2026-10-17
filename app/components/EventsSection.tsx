@@ -7,6 +7,7 @@ import Image, { StaticImageData } from "next/image";
 import frasfest from "@/public/assets/frasfest.jpeg";
 import frasfestontour from "@/public/assets/frasfestontour.jpg";
 import renaissancenight from "@/public/assets/renaissancenight.jpg";
+import trickandtreat from "@/public/assets/trickandtreat.jpg";
 import actionburg from "@/public/assets/actionburg.png";
 import soundsiege from "@/public/assets/soundsiege.png";
 import nahpartyposter from "@/public/assets/nahpartyposter.png";
@@ -22,7 +23,16 @@ interface EventItem {
   ticketLink: string;
 }
 
-const events: EventItem[] = [];
+const events: EventItem[] = [
+  {
+    name: "Trick & Treat",
+    date: "October 30, 2026 - Friday (8pm show)",
+    locationName: "Sanger Hall",
+    address: "48-20 Skillman Ave, Sunnyside, NY 11104",
+    image: trickandtreat,
+    ticketLink: "/#tickets",
+  },
+];
 
 const pastEvents: EventItem[] = [
   {
@@ -128,7 +138,7 @@ export default function EventsSection() {
                 ? { target: "_blank", rel: "noopener noreferrer" }
                 : {})}
             >
-              RSVP
+              Get Tickets
             </a>
           </Button>
         )}
