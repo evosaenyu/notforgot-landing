@@ -35,12 +35,6 @@ export async function POST(req: NextRequest) {
   }
 
   const comingToSee = parseComingToSeeList(comingToSeeRaw);
-  if (comingToSee.length === 0) {
-    return NextResponse.json(
-      { error: "Pick who you're coming to see" },
-      { status: 400 }
-    );
-  }
 
   if (!lineItems?.length) {
     return NextResponse.json({ error: "No items in cart" }, { status: 400 });
@@ -116,8 +110,10 @@ export async function POST(req: NextRequest) {
       metadata: {
         event_id: activeEvent.id,
         tier_ids: resolvedTier.join(","),
-        coming_to_see: formatComingToSeeLabels(comingToSee),
-        coming_to_see_id: comingToSee.map((artist) => artist.id).join(","),
+        ...(comingToSee.length > 0 ? {
+          coming_to_see: formatComingToSeeLabels(comingToSee),
+          coming_to_see_id: comingToSee.map((artist) => artist.id).join(","),
+        } : {}),
       },
     };
 
