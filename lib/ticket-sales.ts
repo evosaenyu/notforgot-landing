@@ -1,15 +1,15 @@
-/** Flip to true when the next show goes on sale. */
-const TICKET_SALES_OPEN = false;
+/** Flip to false after the show to hide checkout/RSVP. */
+const TICKET_SALES_OPEN = true;
 
 /** Flip to false to hide paid checkout while keeping RSVP. */
-const PAID_TICKETS_OPEN = false;
+const PAID_TICKETS_OPEN = true;
 
-/** Renaissance Night has no promo — keep Stripe checkout from offering or auto-applying codes. */
+/** Trick & Treat has no promo — keep Stripe checkout from offering or auto-applying codes. */
 export const CHECKOUT_COUPONS_ENABLED = false;
 
-/** Guest list / RSVP for Renaissance Night. */
+/** Guest list / RSVP for Trick & Treat. */
 export const PARTIFUL_RSVP_URL =
-  "https://partiful.com/e/OoNVrPfjVE6qgTIkemcK?c=k2iQUzDf";
+  "https://partiful.com/e/kcIAAnssH4mSdc9mcG5d";
 
 export function isTicketSalesEnabled(): boolean {
   return TICKET_SALES_OPEN;

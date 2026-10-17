@@ -279,10 +279,10 @@ export default function TicketBuyingSection() {
           className="mb-6 flex justify-center"
         >
           <Image
-            src="/assets/renaissancenight.jpg"
-            alt="Renaissance Night event poster"
+            src="/assets/trickandtreat.jpg"
+            alt="Trick & Treat event poster"
             width={480}
-            height={620}
+            height={570}
             className="rounded-xl object-contain max-h-[420px] w-auto shadow-lg shadow-purple-950/60"
             priority
           />
